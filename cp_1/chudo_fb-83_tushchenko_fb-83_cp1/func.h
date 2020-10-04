@@ -61,15 +61,16 @@ void clean_string(string &str)
 	}
 	str.erase(std::remove(str.begin(), str.end(), char("—")), str.end());
 	str.erase(std::remove(str.begin(), str.end(), 127), str.end());
+
+
+	replace(str.begin(), str.end(), '\n', ' ');
+	//erase double spaces
 	size_t ds = str.find("  ");
 	while (ds != std::string::npos)
 	{
 		str.erase(ds, 1);
 		ds = str.find("  ");
 	}
-
-
-	replace(str.begin(), str.end(), '\n', ' ');
 	cout << "cleaning done" << endl;
 }
 
@@ -148,7 +149,7 @@ void show_map(map<string, float> &mp)
 {
 	for (map<string, float>::const_iterator it = mp.begin(); it != mp.end();++it)
 	{
-		cout << "'" << it->first << "'" << " " << setprecision(5) << it->second << endl;
+		cout << "'" << it->first << "'" << " " << setprecision(3) << it->second << endl;
 	}
 }
 
@@ -157,7 +158,7 @@ void fout_map(ofstream& ofs, map<string, float>& mp)
 {
 	for (map<string, float>::const_iterator it = mp.begin(); it != mp.end(); ++it)
 	{
-		ofs << "'" << it->first << "'	" << it->second << endl;
+		ofs << "'"  << it->first << "' " << setprecision(3) << it->second << endl;
 	}
 }
 
@@ -175,3 +176,43 @@ float enthropy_calc(map<string, float>& mp, float n)
 
 	return H;
 }
+
+
+//void fout_matrix_for_bigram(map <string, float>& lt, map<string, float>& fr, ofstream &fout, int m)
+//{
+//	map<string, float>::const_iterator it2 = fr.begin();
+//	map<string, float>::const_iterator iter = lt.begin();
+//	int n = 0;
+//	string tmp;
+//
+//	//1st row
+//	for (map<string, float>::const_iterator it = lt.begin(); it != lt.end(); ++it)
+//	{
+//		fout << it->first << "	|	";
+//	}
+//	fout << endl;
+//
+//	for (map<string, float>::const_iterator it = lt.begin(); it != lt.end(); ++it)
+//	{
+//		n = 0;
+//		fout << it->first << "	| ";
+//		for (n; n<m && it2 != fr.end(); n++)
+//		{
+//			tmp = string(it->first);
+//			tmp += string((iter + n)->first);
+//
+//			if (it2->first == tmp)
+//			{
+//				fout << it2->second << "	";
+//			}
+//			else
+//			{
+//				fout << "		";
+//			}
+//				++it2;
+//				iter = lt.begin();
+//			
+//		}
+//		fout << endl;
+//	}
+//}

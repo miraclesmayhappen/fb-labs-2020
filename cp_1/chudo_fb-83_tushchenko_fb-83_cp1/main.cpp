@@ -67,6 +67,10 @@ int main()
 	erase_spaces(txt_nospace);
 
 
+	//fout.open("D:\\cryptolab1\\crypto_clean.txt");
+	//fout << txt;
+	//fout.close();
+
 
 
 
@@ -128,9 +132,6 @@ else
 	fout.close();
 	cout << "file output completed" << endl;
 	}
-
-
-
 
 
 
