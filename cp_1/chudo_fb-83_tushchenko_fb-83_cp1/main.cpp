@@ -100,13 +100,13 @@ int main()
 	//						get freq of letter in per cents
 	//						with spaces
 
-	map<string, float> Let_Freq = perc_freq(txt.length(), Letters);
+	map<string, float> Let_Freq = perc_freq(txt.length(), Letters, false);
 	cout << "letter frequency % counted" << endl;
 
-	map<string, float> Bi_Freq = perc_freq(txt.length(), Bigrams);
+	map<string, float> Bi_Freq = perc_freq(txt.length(), Bigrams, false);
 	cout << "bigram frequency % counted" << endl;
 
-	map<string, float> Bi_Freq_nocover = perc_freq(txt.length(), Bigrams_nocover);
+	map<string, float> Bi_Freq_nocover = perc_freq(txt.length(), Bigrams_nocover, true);
 	cout << "no cover bigram frequency % counted" << endl;
 
 
@@ -168,13 +168,13 @@ cout << "nospace bigram frequency counted" << endl;
 
 
 
-Let_Freq = perc_freq(txt_nospace.length(), Letters);
+Let_Freq = perc_freq(txt_nospace.length(), Letters, false);
 cout << "nospace letter frequency % counted" << endl;
 
-Bi_Freq = perc_freq(txt_nospace.length(), Bigrams);
+Bi_Freq = perc_freq(txt_nospace.length(), Bigrams, false);
 cout << "nospace bigram frequency % counted" << endl;
 
-Bi_Freq_nocover = perc_freq(txt_nospace.length(), Bigrams_nocover);
+Bi_Freq_nocover = perc_freq(txt_nospace.length(), Bigrams_nocover, true);
 	cout << "nospace nocover bigram frequency % counted" << endl;
 
 

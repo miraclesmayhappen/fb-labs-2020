@@ -132,10 +132,17 @@ void ngramm_freq_nocoverup(string& str, map <string, float>& mp, int n)
 }
 
 //frequency of letter in per cents
-map<string, float> perc_freq(int length, map<string, float> &mp)
+map<string, float> perc_freq(int length, map<string, float> &mp, bool nocover)
 {
 	map<string, float> map_fr;
-
+	if (nocover == true)
+	{
+		length = length / 2;
+	}
+	else
+	{
+		length -= 1;
+	}
 	for (map<string, float>::const_iterator it = mp.begin(); it != mp.end(); ++it)
 	{
 		map_fr.insert({ it->first, (it->second/ length) });
@@ -170,9 +177,9 @@ float enthropy_calc(map<string, float>& mp, float n)
 	{
 		H -= it->second * log2(it->second);
 	}
-//	cout << H << "		";
+	cout << H << "		";
 	H = H / n;
-//	cout << H << endl;
+	cout << H << endl;
 
 	return H;
 }
