@@ -122,7 +122,7 @@ string num_to_text(vector<int>& numtext)
 //}
 
  /////////////////////////////////////////////////////////////////////
-string encode(string& text, string& key)
+string encode(string& text, string key)
 {
 	vector<int> encoded(text.length(), 0);
 	vector<int> keynum = text_to_num(key);
@@ -197,14 +197,14 @@ string encode(string& text, string& key)
 ////////////////////////////////////////////////////////////////////////
 
 
- double conformity_index(string& text)
+ double conformity_index(string text)
  {
 	 vector<int> textnum = text_to_num(text);
 	 vector<int> freq = count_freq(text);
 
-	 int n = text.length();
+	 double n = text.length();
 	 double index = 0.0;
-	 int N;
+	 double N;
 
 	 for (int i = 0; i < alpha_size; i++)
 	 {
@@ -221,9 +221,9 @@ string encode(string& text, string& key)
  {
 	 //string text = num_to_text(textnum);
 	 vector<int> freq = count_freq(textnum);
-	 int n = textnum.size();
+	 double n = textnum.size();
 	 double index = 0.0;
-	 int N;
+	 double N;
 
 	 for (int i = 0; i < alpha_size; i++)
 	 {
@@ -331,9 +331,12 @@ int eval_r (vector<int>& textnum, int max_r=5)
 		 vector<vector<int>> blocks = group_blocks(textnum, r);
 		 vector<double> conf = blocks_confirmity(blocks);
 		 max_of_r[r] = get_max(conf);
-		 //cout_vector(conf);
+		// cout_vector(conf);
 	 }
-
+	 //cout << "All indexes for r:" << endl;
+	 //cout_map(max_of_r);
+	 cout << "-----------------------------------------" << endl;
+	 cout << "MAx indexes: "<< endl;
 	 map<int, double> maxes = get_max(max_of_r);
 	 cout_map(maxes);
 	 cout << "enter key length:		";
@@ -359,21 +362,88 @@ string crack_key(vector<int> &textnum, int key_length)
 		key += eval_key_letter_with_o(blocks.at(i), freq.at(i));
 	}
 
-	cout << "Cracked key:	" << key << endl;
-	cout << "Frequencies" << endl;
-	cout_vector(freq);
+//	cout << "Cracked key:	" << key << endl;
+//	cout << "Frequencies" << endl;
+//	cout_vector(freq);
 
 
 	return key;
 }
 
 
+void task2 (string& enc, ofstream &fout)
+
+{
+	vector<string> keys;
+	keys.push_back("еж");   
+	keys.push_back("кот");
+	keys.push_back("мост");
+	keys.push_back("аминь");
+	keys.push_back("аристократизм");
+
+	vector<string> tofile;
+	vector<double> index;
+
+	for (int i = 0; i < keys.size(); i++)
+	{
+		string key = keys.at(i);
+		string encd = encode(enc, key);
+		double ind = conformity_index(encd);
+		tofile.push_back(encd);
+		index.push_back(ind);
+	}
+
+		fout.open("encoded_my.txt");
+	{//	fout.open("encoded_my.txt");
+	if (!fout.fail())
+	{
+		for (int i = 0; i < keys.size(); i++)
+		{
+			fout << tofile.at(i) << endl << endl;
+			fout << index.at(i) << endl << endl;
+		}
+	}
+	fout.close(); }
 
 
 
+}
 
 
+void task3(string& encr, ofstream &fout)
+{
+vector<int> encr_num = text_to_num(encr);
 
+	int keylength = eval_r(encr_num, 30);
+
+	string crackedkey = crack_key(encr_num, keylength);
+
+	cout << "Cracked key:	"<< crackedkey << endl;
+	cout << "Wanna edit cracked key?  0/1" << endl;
+	int answ;
+	cin >> answ;
+	string variantdecoded;
+
+	if (answ == 1)
+	{
+		string mykey;
+		cout << "Enter edited key:	";
+		cin.ignore();
+		getline(cin, mykey);	
+		variantdecoded = decode(encr, mykey);
+	}
+	else {
+		variantdecoded = decode(encr, crackedkey);
+	}
+
+	{	fout.open("variantdecode_result.txt");
+	if (!fout.fail())
+	{
+		fout << variantdecoded;
+	}
+	fout.close(); 
+	}
+}
 
 
 
