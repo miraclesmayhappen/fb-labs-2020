@@ -32,22 +32,6 @@ string num_to_text(vector<int>& numtext)
 	return text;
 }
 
-//Extended Euclidean Algorithm
-
-int gcd(int a, int b)
-{
-	if (a == 0)
-	{
-		return b;
-	}
-	//recursive
-	return gcd(b % a, a);
-}
-
-
-//Inverse Modulo
-int inverse_mod (int a, int m)
-
 
 ////frequencies
  //letters
@@ -86,10 +70,206 @@ map<string, float> perc_freq(int length, map<string, float>& mp, bool nocover)
 	return map_fr;
 }
 //5 bigrams
+vector<string> most_freq_bigr(string& text)
+{
+	vector<string> bigr;
+	map<string, float> freq;
+	ngramm_freq_nocoverup(text, freq, 2);
+	//freq = perc_freq(text.length(), freq1, true); 
+
+	//map is sorted by keys
+	//so to get it sorted by values create reversed map where revmp.first = mp.second
+	//map requires unique kay values we will use multimap as it permits multiple entries with the same key
+
+	multimap<float, string> rev_freq;
+
+	for (map<string, float>::iterator it = freq.begin(); it != freq.end(); it++)
+	{
+		rev_freq.insert({ it->second, it->first });
+	}
+
+	//for (int i = 0; i < 5; i++)
+	//{
+	//	multimap<float, string>::iterator it = rev_freq.begin();
+	//	it += i;
+	//	string val = it->second;
+	//	bigr.push_back(val);
+	//}
+	for (auto& it : rev_freq)
+	{
+		bigr.push_back(it.second);
+	}
+
+	vector<string> top5;
+
+	for (int i = 0; i < 5; i++)
+	{
+		top5.push_back(bigr.at(i));
+	}
+
+	return top5;
+}
 
 
 
-pair<int, int> getkey(int a, int b)
+
+
+pair<int, int> makekey(int a, int b)
 {
 	return make_pair(a, b);
+}
+
+//eea
+
+pair<int, int> eea(int a, int b)
+{
+	pair<int, int> res; //gcd, inv
+
+	vector<int> Rvalues;
+	Rvalues.push_back(a);
+	Rvalues.push_back(b);
+
+	vector<int> Uvalues;
+	Uvalues.push_back(1);
+	Uvalues.push_back(0);
+
+	vector<int> Vvalues;
+	Vvalues.push_back(0);
+	Vvalues.push_back(1);
+
+	bool flag = false;
+
+	int r, q, u, v;
+
+	for (int i = 2; !flag; i++)
+	{
+
+		r = Rvalues.at(i - 2) % Rvalues.at(i - 1);
+
+		if (r == 0)
+		{
+			flag = true;
+			break;
+		}
+
+		q = Rvalues.at(i - 2) / Rvalues.at(i - 1);
+
+		u = Uvalues.at(i - 2) - q * Uvalues.at(i - 1);
+
+		v = Vvalues.at(i - 2) - q * Vvalues.at(i - 1);
+
+		Uvalues.push_back(u);
+		Vvalues.push_back(v);
+		Rvalues.push_back(r);
+
+	}
+
+	r = Rvalues.back();
+	u = Uvalues.back();
+
+	res = make_pair(r, u);
+
+	return res;
+}
+
+int gcd(int a, int m)
+{
+	pair<int, int> ee = eea(a, m);
+	return ee.first;
+}
+
+//Inverse Modulo
+int inverse_mod(int a, int m)
+{
+	pair <int, int> ee; //gcd, inv
+	ee = eea(a, m);
+
+		if (ee.first != 1)
+		{
+			cout << a << "^-1  (mod " << m << ")  doesn`t exist" << endl;
+			return -1;
+		}
+
+		else
+		{
+			return mod(ee.second, m);
+		}
+
+}
+
+
+void writefile(string& text, ofstream& fout, string path)
+{
+	fout.open(path, fstream::app);
+	if (!fout.fail())
+	{
+		fout << text;
+	}
+	fout.close();
+}
+
+string readfile(ifstream& fin, string path)
+{
+	string r;
+	fin.open(path);
+	//check for file open failure
+	if (fin.fail())
+	{
+		cout << "Error opening input file" << endl;
+		fin.close();
+		system("PAUSE");
+
+	}
+	else
+	{
+		cout << "Input file is opened successfully" << endl;
+	}
+
+	//reading file
+	getline(fin, r, '\0');
+	cout << "file reading is completed" << endl;
+
+	//close input stream
+	fin.close();
+
+	return r;
+}
+
+
+
+
+void cleanup(string& str)
+//{
+//
+//	for (int i = 0; i < str.length(); i++)
+//	{
+//
+//		//	//replace ¸
+//		if (str.at(i) == '¸' || str.at(i) == '¨') { str.at(i) = 'å'; }
+//
+//
+//		//set to lowercase
+//		if (str.at(i) >= -64 && str.at(i) <= -33)
+//		{
+//			str.at(i) += 32;
+//		}
+//
+//		//	//cleanup all non-letter symbols but spaces
+//		if (!(str.at(i) >= -32 && str.at(i) <= -1))
+//		{
+//			str.at(i) = 127;
+//		}
+//
+//	}
+//
+//
+//
+//	str.erase(std::remove(str.begin(), str.end(), 127), str.end());
+//
+
+	replace(str.begin(), str.end(), '\n', ' ');
+
+	str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
+	cout << "cleaning done" << endl;
+
 }

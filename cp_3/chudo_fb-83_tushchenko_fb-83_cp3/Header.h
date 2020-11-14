@@ -17,7 +17,7 @@
 
 using namespace std;
 
-int alpha_size = 31;
+
 
 map<string, int> AlphNum =
 {
@@ -45,7 +45,14 @@ map<int, string> NumAlph =
 
 };
 
+vector<string> top5bigr = {
+	{"ст"}, {"но"}, {"то"}, {"на"}, {"ен"}
 
+};
 
+int alpha_size = AlphNum.size();
+
+ifstream fin;
+ofstream fout;
 
 #endif

@@ -1,5 +1,34 @@
 #include "sidefunc.h"
 
+
+int bigram_to_int(string& bigr)
+{
+	string a, b;
+	a = bigr.at(0);
+	b = bigr.at(1);
+
+	int an, bn;
+
+	an = AlphNum[a];
+	bn = AlphNum[b];
+
+	return an * alpha_size + bn;
+}
+
+string int_to_bigram(int& bi)
+{
+	int a, b;
+	a = bi / alpha_size;
+	b = bi % alpha_size;
+
+	string ab;
+	ab += NumAlph[a];
+	ab += NumAlph[b];
+
+	return ab;
+}
+
+
 //encode
 vector<int> encode(string& text, pair<int, int> &key)
 {
@@ -40,11 +69,11 @@ vector<int> encode(string& text, pair<int, int> &key)
 	return encnum;
 }
 
-string encode(string& text, pair<int, int> &key)
-{
-	vector<int> encrnum = encode(text, key);
-	return num_to_text(encrnum);
-}
+//string encode(string& text, pair<int, int> &key)
+//{
+//	vector<int> encrnum = encode(text, key);
+//	return num_to_text(encrnum);
+//}
 
 
 //decode
@@ -57,6 +86,10 @@ vector<int> decode(vector<int>& textnum, pair<int, int>& key)
 	vector<int> decnum;
 	int a_inv = inverse_mod(a, alpha_size);
 
+	if (a_inv == -1)
+	{
+		return decnum;
+	}
 
 	for (int i = 0; i + 1 < textnum.size(); i += 2)
 	{
@@ -66,6 +99,9 @@ vector<int> decode(vector<int>& textnum, pair<int, int>& key)
 		y = textnum.at(i) * alpha_size + textnum.at(i + 1);
 		// X = a^-1 * (Y - b) mod m
 		x = mod(a_inv * (y - b), alpha_size);
+
+		/*x = linear(a, (y - b), alpha_size);*/ //linear returns vector<int>
+
 		// X = x1 * m + x2
 		x1 = x / alpha_size;
 		x2 = x % alpha_size;
@@ -86,28 +122,23 @@ vector<int> decode(vector<int>& textnum, pair<int, int>& key)
 	return decnum;
 }
 
-vector<int> decode(string& text, pair<int, int> &key)
-{
-	vector<int> textnum = text_to_num(text);
-	return decode(textnum, key);
-}
-
-string decode(vector<int>& textnum, pair<int, int>& key)
-{
-	vector<int> decnum = decode(textnum, key);
-	return num_to_text(decnum);
-}
-
-string decode(string& text, pair<int, int>& key)
-{
-	vector<int> decnum = decode(text, key);
-	return num_to_text(decnum);
-}
-
-//find key
-//pair<int,int> crackkey()
-
-
+//vector<int> decode(string& text, pair<int, int> &key)
+//{
+//	vector<int> textnum = text_to_num(text);
+//	return decode(textnum, key);
+//}
+//
+//string decodestr(vector<int>& textnum, pair<int, int>& key)
+//{
+//	vector<int> decnum = decode(textnum, key);
+//	return num_to_text(decnum);
+//}
+//
+//string decodestr(string& text, pair<int, int>& key)
+//{
+//	vector<int> decnum = decode(text, key);
+//	return num_to_text(decnum);
+//}
 
 
 //test lang
@@ -143,14 +174,14 @@ bool test_forbidden_bigrams(string& text)
 
 
 //linear
-
+// a* x = b (mod m)
 vector<int> linear(int a, int b, int m)
 {
 	int d = gcd(a, m);
 	vector<int> res;
 	if (d == 1)
 	{
-		int x = mod(inverse_mod(a) * b, m);
+		int x = mod(inverse_mod(a,m) * b, m);
 		res.push_back(x);
 	}
 	else 
@@ -166,7 +197,7 @@ vector<int> linear(int a, int b, int m)
 				int a1 = a / d;
 				int b1 = b / d;
 				int m1 = m / d;
-				int x = mod(inverse_mod(a1) * b1, m1);
+				int x = mod(inverse_mod(a1, m1) * b1, m1);
 				res.push_back(x);
 				for (int i = 1; i < d - 1; i++)
 				{
@@ -177,4 +208,81 @@ vector<int> linear(int a, int b, int m)
 		}
 
 	return res;
+}
+
+
+
+//evaluate key
+vector<pair<int, int>> evalkey(string& text)
+{
+	vector<string> bigr = most_freq_bigr(text);
+	
+	//«ñò», «íî», «òî», «íà», «åí»
+	string Y1, Y2, X1, X2;
+	int Y1n, Y2n, X1n, X2n;
+	int a, b;
+	vector<pair<int, int>> keypairs;
+
+	/*
+	Y1 = aX1 + b (mod m^2)
+	Y2 = aX2 + b (mod m^2)
+
+	=> Y1-Y2 = a(X1 - X2)  (mod m^2)  // a(X1 - X2) = Y1-Y2  (Aa=B, a = A^-1 *B)
+	b = (Y1 - aX1) (mod m^2)
+	*/
+
+
+	for (int i = 0; i < bigr.size() - 1; i++)
+	{
+		Y1 = bigr.at(i);
+		X1 = top5bigr.at(i);
+
+		Y1n = bigram_to_int(Y1);
+		X1n = bigram_to_int(X1);
+
+
+		for (int j = 1; j < bigr.size(); j++)
+		{
+			Y2 = bigr.at(j);
+			X2 = top5bigr.at(j);
+
+			Y2n = bigram_to_int(Y2);
+			X2n = bigram_to_int(X2);
+
+			vector<int> linearres = linear(X1n - X2n, Y1n - Y2n, pow(alpha_size, 2));
+			if (linearres.size() == 0) continue;
+			for (int k = 0; k < linearres.size(); k++)
+			{
+				a = linearres.at(k);
+				b = mod(Y1n - a * X1n, pow(alpha_size, 2));
+				keypairs.push_back(makekey(a, b));
+			}
+
+		}
+		
+	}
+
+
+	return keypairs;
+}
+
+vector<pair<int, int>> testkeys(vector<pair<int, int>>& keys, string& text)
+{
+	pair<int, int> key;
+	vector<pair<int, int>> suitablekeys;
+	vector<int> textnum = text_to_num(text);
+	for (int i = 0; i < keys.size(); i++)
+	{
+		key = keys.at(i);
+		
+		vector<int> decnum = decode(textnum, key);
+		string decoded = num_to_text(decnum);
+		bool test = test_forbidden_bigrams(decoded);
+		if (test)
+		{
+			suitablekeys.push_back(key);
+		}
+	}
+
+	return suitablekeys;
 }
