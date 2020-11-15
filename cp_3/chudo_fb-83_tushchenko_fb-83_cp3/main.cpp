@@ -6,31 +6,21 @@ int main()
 	SetConsoleOutputCP(1251);
 	SetConsoleCP(1251);
 
-	string encoded = readfile(fin, "D:\\cryptolab3\\test.txt");
+	string encoded = readfile(fin, "D:\\cryptolab3\\var.txt");
+
 	cleanup(encoded);
-	//vector<int> encrnum = encode(text, key);
-	//string encoded = num_to_text(encrnum);
 
-	//cout << "open text :" << text << endl;
-	//cout << "encrypted with key (" << key.first << ", " << key.second << ") : " << endl;
-	//cout << encoded << endl;
+	vector<int> encnum = text_to_num(encoded);
 
+	cout << encnum.size() << endl;
 
-	vector<pair<int, int>> evalkeys = evalkey(encoded);
-	vector<pair<int, int>> foundkey = testkeys(evalkeys, encoded);
-
-	vector<int> encrnum = text_to_num(encoded);
-
-	for (int i = 0; i < foundkey.size(); i++)
-	{
-		vector<int> decnum = decode(encrnum, foundkey.at(i));
-		string decoded = num_to_text(decnum);
-		writefile(decoded, fout, "decodemy.txt");
-	}
+	vector<pair<int, int>> keys = evalkey(encoded);
 
 
+	vector<int> decnum = decode(encnum, keys.at(0));
+	string dec = num_to_text(decnum);
 
-
+	writefile(dec, fout, "var_decoded.txt");
 
 
 	system("pause");

@@ -293,32 +293,37 @@ vector<pair<int, int>> evalkey(string& text)
 
 	for (int i = 0; i < 5; i++)
 	{
-		Y1 = bigram.at(i); //my conted top 5
+		
 		X1 = top5bigr.at(i);	//«ñò», «íî», «òî», «íà», «åí»
-
-		Y1n = bigram_to_int(Y1);
 		X1n = bigram_to_int(X1);
 
+		for (int ii = 0; ii < 5; ii++)
+		{
 
-		for (int j = 1; j < bigram.size(); j++)
+		Y1 = bigram.at(ii); //my conted top 5
+		Y1n = bigram_to_int(Y1);
+
+
+
+		for (int j = 0; j < bigram.size(); j++)
 		{
 			X2 = top5bigr.at(j); //get next in top5
 			X2n = bigram_to_int(X2);
-			for (int h = i+1; h < 5; h++)
+			for (int h = i + 1; h < 5; h++)
 			{
 
-			Y2 = bigram.at(h); //get next in mytop5
-			Y2n = bigram_to_int(Y2);
-			
+				Y2 = bigram.at(h); //get next in mytop5
+				Y2n = bigram_to_int(Y2);
 
-			/*
-			Y1-Y2 = a (X1 - X2) mod m^2
-			*/
-			vector<int> linearres;
-			if (X1n - X2n != 0 && Y1n - Y2n != 0)
-			{
-				linearres = linear(X1n - X2n, Y1n - Y2n, pow(alpha_size, 2));
-			} //get a value
+
+				/*
+				Y1-Y2 = a (X1 - X2) mod m^2
+				*/
+				vector<int> linearres;
+				if (X1n - X2n != 0 && Y1n - Y2n != 0)
+				{
+					linearres = linear(X1n - X2n, Y1n - Y2n, pow(alpha_size, 2));
+				} //get a value
 
 				if (linearres.size() == 0) continue;
 
@@ -352,7 +357,8 @@ vector<pair<int, int>> evalkey(string& text)
 					}
 				}
 
-				}
+			}
+		}
 
 			}
 
