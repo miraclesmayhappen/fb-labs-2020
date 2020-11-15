@@ -1,5 +1,13 @@
 #include "Header.h"
 
+//void cout_map(map<string, float>& mp)
+//{
+//	for (map <string, float> ::iterator it = mp.begin(); it != mp.end(); it++)
+//	{
+//		cout <<  it->first << "    " << it->second << endl;
+//	}
+//}
+
 //modulus count
 int mod(int a, int b)
 {
@@ -69,48 +77,93 @@ map<string, float> perc_freq(int length, map<string, float>& mp, bool nocover)
 
 	return map_fr;
 }
+
 //5 bigrams
-vector<string> most_freq_bigr(string& text)
+
+string getmax(map<string, float>& mp)
 {
-	vector<string> bigr;
+	int m = 0;
+	string maxkey;
+	for (map<string, float>::iterator it = mp.begin(); it != mp.end(); it++)
+	{
+		if (it->second > m)
+		{
+			m = it->second;
+			maxkey = it->first;
+		}
+	}
+
+	return maxkey;
+}
+
+//map<float, string> most_freq_bigr(string& text)
+//{
+//	vector<string> bigr;
+//	map<string, float> freq;
+//	ngramm_freq_nocoverup(text, freq, 2);
+//	//freq = perc_freq(text.length(), freq1, true); 
+//
+//	//map is sorted by keys
+//	//so to get it sorted by values create reversed map where revmp.first = mp.second
+//	//map requires unique kay values we will use multimap as it permits multiple entries with the same key
+//
+//	multimap<float, string> rev_freq;
+//
+//	for (map<string, float>::iterator it = freq.begin(); it != freq.end(); it++)
+//	{
+//		rev_freq.insert({ it->second, it->first });
+//	}
+//
+//	//for (int i = 0; i < 5; i++)
+//	//{
+//	//	multimap<float, string>::iterator it = rev_freq.begin();
+//	//	it += i;
+//	//	string val = it->second;
+//	//	bigr.push_back(val);
+//	//}
+//	/*for (auto& it : rev_freq)
+//	{
+//		bigr.push_back(it.second);
+//	}*/
+//
+//
+//	map<float, string> top5;
+//		
+//	for (int i=0; i < 5; i++)
+//		{
+//		multimap<float, string>::iterator it = rev_freq.begin();
+//			cout << it->first << " " << it->second;
+//			top5.insert({ it->first, it->second });
+//			rev_freq.erase(it);
+//			
+//		}
+//
+//
+//	return top5;
+//}
+
+map<string, float> most_freq_bigr(string& text)
+{
+	map<string, float> bigr;
 	map<string, float> freq;
 	ngramm_freq_nocoverup(text, freq, 2);
 	//freq = perc_freq(text.length(), freq1, true); 
+	string maxkey;
 
-	//map is sorted by keys
-	//so to get it sorted by values create reversed map where revmp.first = mp.second
-	//map requires unique kay values we will use multimap as it permits multiple entries with the same key
 
-	multimap<float, string> rev_freq;
-
-	for (map<string, float>::iterator it = freq.begin(); it != freq.end(); it++)
-	{
-		rev_freq.insert({ it->second, it->first });
-	}
-
-	//for (int i = 0; i < 5; i++)
-	//{
-	//	multimap<float, string>::iterator it = rev_freq.begin();
-	//	it += i;
-	//	string val = it->second;
-	//	bigr.push_back(val);
-	//}
-	for (auto& it : rev_freq)
-	{
-		bigr.push_back(it.second);
-	}
-
-	vector<string> top5;
 
 	for (int i = 0; i < 5; i++)
 	{
-		top5.push_back(bigr.at(i));
+		maxkey = getmax(freq);
+		//cout << maxkey << " " << freq[maxkey] << endl;
+
+		bigr.insert({ maxkey, freq[maxkey] });
+		freq.erase(maxkey);
 	}
 
-	return top5;
+
+	return bigr;
 }
-
-
 
 
 
@@ -187,7 +240,7 @@ int inverse_mod(int a, int m)
 		if (ee.first != 1)
 		{
 			cout << a << "^-1  (mod " << m << ")  doesn`t exist" << endl;
-			return -1;
+			return 0;
 		}
 
 		else
@@ -266,7 +319,7 @@ void cleanup(string& str)
 //
 //	str.erase(std::remove(str.begin(), str.end(), 127), str.end());
 //
-
+{
 	replace(str.begin(), str.end(), '\n', ' ');
 
 	str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
