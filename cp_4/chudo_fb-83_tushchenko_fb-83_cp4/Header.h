@@ -23,7 +23,7 @@ using namespace boost::random;
 ifstream fin;
 ofstream fout;
 
-vector<int> dividers = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41 };
+vector<int> dividers = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59 };
 
 
 
@@ -45,14 +45,14 @@ public:
 
 	Pers(); //constructor
 
-	pair<uint256_t, uint256_t> getpublickey();
+	pair<uint512_t, uint256_t> getpublickey();
 	void printpublickey();
 
-	pair< uint256_t, uint256_t> sign_message(uint256_t& M/*, tuple<uint256_t, uint256_t, uint256_t>& privatekey*/);
-	bool check_signature(pair< uint256_t, uint256_t>& sign_mes, pair< uint256_t, uint256_t>& publickey);
+	pair< uint512_t, uint512_t> sign_message(uint512_t& M/*, tuple<uint256_t, uint256_t, uint256_t>& privatekey*/);
+	bool check_signature(pair< uint512_t, uint512_t>& sign_mes, pair< uint512_t, uint256_t>& publickey);
 	
-	uint256_t encrypt(uint256_t& M/*, pair<uint256_t, uint256_t>& publickey*/);
-	uint256_t decrypt(uint256_t& C/*, tuple<uint256_t, uint256_t, uint256_t>& privatekey*/);
+	uint512_t encrypt(uint512_t M, pair<uint512_t, uint256_t>& publkey);
+	uint512_t decrypt(uint512_t C/*, tuple<uint256_t, uint256_t, uint256_t>& privatekey*/);
 
 	void setkey();
 
@@ -61,16 +61,16 @@ public:
 private:
 
 
-	pair<uint256_t, uint256_t> publickey; //pbk value
+	pair<uint512_t, uint256_t> publickey; //pbk value
 	tuple<uint256_t, uint256_t, uint256_t> privatekey; //pvk value
 
 
-	pair<uint256_t, uint256_t> gen_publickey(uint256_t& p, uint256_t& q, uint256_t& phi_n); // generate pbk
-	pair< tuple<uint256_t, uint256_t, uint256_t>, pair<uint256_t, uint256_t>> gen_keyset(); // generate pbk and prk
+	pair<uint512_t, uint256_t> gen_publickey(uint256_t& p, uint256_t& q, uint256_t& phi_n); // generate pbk
+	pair< tuple<uint256_t, uint256_t, uint256_t>, pair<uint512_t, uint256_t>> gen_keyset(); // generate pbk and prk
 
 
-	pair< uint256_t, uint256_t> RSA_sender(Pers &B, uint256_t k);
-	uint256_t RSA_reciever(Pers& A, pair<uint256_t, uint256_t>& mes);
+	pair< uint512_t, uint512_t> RSA_sender(Pers &B, uint512_t k);
+	uint512_t RSA_reciever(Pers& A, pair<uint512_t, uint512_t> mes);
 		
 
 
