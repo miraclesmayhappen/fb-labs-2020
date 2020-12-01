@@ -44,6 +44,7 @@ class Pers
 public:
 
 	Pers(); //constructor
+	Pers(pair<uint512_t, uint256_t> publ); //constructor
 
 	pair<uint512_t, uint256_t> getpublickey();
 	void printpublickey();
@@ -56,7 +57,8 @@ public:
 
 	void setkey();
 
-
+	pair< uint512_t, uint512_t> RSA_sender(Pers &B, uint512_t k);
+	uint512_t RSA_reciever(Pers& A, pair<uint512_t, uint512_t> mes);
 
 private:
 
@@ -69,8 +71,7 @@ private:
 	pair< tuple<uint256_t, uint256_t, uint256_t>, pair<uint512_t, uint256_t>> gen_keyset(); // generate pbk and prk
 
 
-	pair< uint512_t, uint512_t> RSA_sender(Pers &B, uint512_t k);
-	uint512_t RSA_reciever(Pers& A, pair<uint512_t, uint512_t> mes);
+
 		
 
 

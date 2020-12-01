@@ -207,7 +207,7 @@ bool miller_rabin(uint256_t p)
 		{
 
 			// p is strongly pseudo prime for x
-			if (abs(/*mod(pow(x, d), p))*/ power(x, d, p) )== 1)
+			if (power(x, d, p)== 1 || power(x, d, p) == p-1)
 			{
 				continue;
 			}

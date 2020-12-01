@@ -41,6 +41,11 @@ Pers::Pers()
 	this->privatekey = keyset.first;
 }
 
+Pers::Pers(pair<uint512_t, uint256_t> publ)
+{
+	this->publickey = publ;
+}
+
 
 void Pers::setkey()
 {
