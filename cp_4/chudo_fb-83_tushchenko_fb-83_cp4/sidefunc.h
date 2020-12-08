@@ -1,7 +1,7 @@
 #include "Header.h"
 
 ////get x^n
-//uint256_t pow(uint256_t x, uint256_t n)
+//cpp_int pow(cpp_int x, cpp_int n)
 //{
 //	if (n == 0)
 //		return 1;
@@ -14,78 +14,121 @@
 //}
 //
 //modulus count
-uint256_t mod(uint256_t a, uint256_t b)
+cpp_int mod(cpp_int a, cpp_int b)
 {
 	return (a % b + b) % b;
 }
 
-// x*y mod p
-uint512_t multiplymod(uint512_t x, uint512_t y, uint512_t p)
-{
-	uint512_t res = 0;
-	uint512_t b = x % p;
-
-	while (y > 0)
-	{
-		if (y % 2 == 1)
-		{
-			res = (res + b) % p;
-		}
-
-		b = (2 * b) % p;
-		y /= 2;
-	}
-
-	return res % p;
-}
+//// x*y mod p
+//cpp_int multiplymod(cpp_int x, cpp_int y, cpp_int p)
+//{
+//	cpp_int res = 0;
+//	cpp_int b = x % p;
+//
+//	while (y > 0)
+//	{
+//		if (y % 2 == 1)
+//		{
+//			res = (res + b) % p;
+//		}
+//
+//		b = (2 * b) % p;
+//		y /= 2;
+//	}
+//
+//	return res % p;
+//}
 
 // x^y mod p
 /* based on Applied Cryptography by Bruce Schneier*/
-uint512_t power(uint512_t x, uint512_t y, uint512_t p)
+//cpp_int power(cpp_int x, cpp_int y, cpp_int p)
+//
+//{
+//	cpp_int res = 1;
+//
+//	x = x % p; 
+//
+//	if (x == 0) return 0; 
+//
+//	while (y > 0)
+//	{
+//		// If y is odd, multiply x with result  
+//		if (y % 2 == 1)
+//		{
+//			res = (res * x) % p;
+//		}
+//
+//		// y must be even now  
+//		x = (x * x) % p;
+//		y = y/2;  
+//
+//	}
+//	return res % p;
+//}
 
+cpp_int horner_pow(cpp_int x, cpp_int m, cpp_int p)
 {
-	uint512_t res = 1;
-
-	x = x % p; 
-
-	if (x == 0) return 0; 
-
-	while (y > 0)
+	x = x % p;
+	cpp_int y = 1;
+	vector<cpp_int> e_s;
+	// m = e0 + e1*2+e2*2^2 +...
+	while (m != 0)
 	{
-		// If y is odd, multiply x with result  
-		if (y % 2 == 1)
+		e_s.push_back(m % 2);
+			m /= 2;
+	}
+	//e_s basicly stores reversed binary of m
+	//cout << "binary:" << endl;
+	//for (int i = e_s.size() - 1; i >= 0; i--)
+	//{
+	//	cout << e_s.at(i);
+	//}
+	//cout << endl;
+
+	for (int i = e_s.size() - 1; i >=0 ; i--)
+	{
+		// y = y * x^ei
+		// y = y * y
+		//cout << "step" << i << "	y=" << y << "	e=" << e_s.at(i) <<endl;
+		if (e_s.at(i) == 1)
 		{
-			res = (res * x) % p;
+			y = (y * x) % p;
+		//	cout << "y = (y * x) % p = " << y<< endl;
 		}
 
-		// y must be even now  
-		x = (x * x) % p;
-		y = y/2;  
+		if (i == 0)
+		{
+			break;
+		}
 
+		y = (y * y) % p;
+		//cout << "y = (y * y) % p = " << y << endl;
 	}
-	return res % p;
+
+
+	return y;
 }
 
 //eea
-pair<uint256_t, uint256_t> eea(uint256_t a, uint256_t b)
+pair<cpp_int, cpp_int> eea(cpp_int a, cpp_int b)
 {
-	pair<uint256_t, uint256_t> res; //gcd, inv
+	pair<cpp_int, cpp_int> res; //gcd, inv
 
-	vector<uint256_t> Rvalues;
+	vector<cpp_int> Rvalues;
 	Rvalues.push_back(a);
 	Rvalues.push_back(b);
 
-	vector<uint256_t> Uvalues;
+	vector<cpp_int> Uvalues;
 	Uvalues.push_back(1);
 	Uvalues.push_back(0);
 
-	vector<uint256_t> Vvalues;
+	vector<cpp_int> Vvalues;
 	Vvalues.push_back(0);
 	Vvalues.push_back(1);
 
 	bool flag = false;
 
-	uint256_t r, q, u, v;
+	cpp_int r, q, u, v;
 
 	for (int i = 2; !flag; i++)
 	{
@@ -119,16 +162,16 @@ pair<uint256_t, uint256_t> eea(uint256_t a, uint256_t b)
 }
 
 //gcd 
-uint256_t gcd(uint256_t a, uint256_t m)
+cpp_int gcd(cpp_int a, cpp_int m)
 {
-	pair<uint256_t, uint256_t> ee = eea(a, m);
+	pair<cpp_int, cpp_int> ee = eea(a, m);
 	return ee.first;
 }
 
 //Inverse Modulo
-uint256_t inverse_mod(uint256_t a, uint256_t m)
+cpp_int inverse_mod(cpp_int a, cpp_int m)
 {
-	pair <uint256_t, uint256_t> ee; //gcd, inv
+	pair <cpp_int, cpp_int> ee; //gcd, inv
 	ee = eea(a, m);
 
 	if (ee.first != 1)
@@ -146,7 +189,7 @@ uint256_t inverse_mod(uint256_t a, uint256_t m)
 
 ////////////////////////////////////////////////////////////
 
-bool trial_division(uint256_t num)
+bool trial_division(cpp_int num)
 {
 
 	for (int i=0; i<dividers.size(); i++)
@@ -161,12 +204,12 @@ bool trial_division(uint256_t num)
 	return true;
 }
 
-bool miller_rabin(uint256_t p)
+bool miller_rabin(cpp_int p)
 {
-	uint256_t k = 1000;//1000 + rand() % 9000;
-	vector<uint256_t> used_x;
-	uint256_t x = 0;
-	uint256_t d, s;
+	cpp_int k = 1000;//1000 + rand() % 9000;
+	vector<cpp_int> used_x;
+	cpp_int x = 0;
+	cpp_int d, s;
 	int	counter = 0;
 	s = 0;
 	d = p - 1;
@@ -189,7 +232,7 @@ bool miller_rabin(uint256_t p)
 			//generate x
 			 x = 2 + gen() % (p - 4); // 1<x<p
 			//check if this x value was already chosen
-			vector<uint256_t>::iterator it = find(used_x.begin(), used_x.end(), x);
+			vector<cpp_int>::iterator it = find(used_x.begin(), used_x.end(), x);
 			if (it == used_x.end())
 			{ //if not in used_x go next step
 				flag = true;
@@ -207,7 +250,7 @@ bool miller_rabin(uint256_t p)
 		{
 
 			// p is strongly pseudo prime for x
-			if (power(x, d, p)== 1 || power(x, d, p) == p-1)
+			if (horner_pow(x, d, p)== 1 || horner_pow(x, d, p) == p-1)
 			{
 				continue;
 			}
@@ -216,12 +259,12 @@ bool miller_rabin(uint256_t p)
 				//x_r = x^(d*2^r)
 			{
 				// xrc = x^d mod p
-				uint512_t xrc = x;/*= /*mod(pow(x, d), p) power(x, /*d2, p)*/
+				cpp_int xrc = x;/*= /*mod(pow(x, d), p) power(x, /*d2, p)*/
 								
 				for (int r = 1; r <= s-1; r++)
 				{
 					//x_r = x_r-1 ^2
-					xrc = /*mod(pow(xrc, 2), p)*/power(xrc, d, p);
+					xrc = /*mod(pow(xrc, 2), p)*/horner_pow(xrc, d, p);
 
 					// p is strongly pseudo prime for x
 					if (xrc == p-1) 
@@ -244,7 +287,7 @@ bool miller_rabin(uint256_t p)
 	return true;
 }
 
-bool try_prime(uint256_t num)
+bool try_prime(cpp_int num)
 {
 	if (!trial_division(num))
 	{
@@ -259,10 +302,10 @@ bool try_prime(uint256_t num)
 	else return true;
 }
 
-uint256_t gen_prime()
+cpp_int gen_prime()
 {
 	bool flag = false;
-	uint256_t p;
+	cpp_int p;
 	while (!flag)
 	{
 
@@ -274,7 +317,7 @@ uint256_t gen_prime()
 	return p;
 }
 
-uint256_t prime_euler(uint256_t &num1, uint256_t &num2)
+cpp_int prime_euler(cpp_int &num1, cpp_int &num2)
 {
 	return (num1 - 1) * (num2 - 1);
 }

@@ -1,8 +1,8 @@
 #include "sidefunc.h"
 
-pair <uint512_t, uint256_t> Pers::gen_publickey(uint256_t &p, uint256_t &q, uint256_t &phi_n)
+pair <cpp_int, cpp_int> Pers::gen_publickey(cpp_int &p, cpp_int &q, cpp_int &phi_n)
 {
-	uint256_t e;
+	cpp_int e;
 	bool flag = false;
 	
 	while (!flag)
@@ -16,32 +16,32 @@ pair <uint512_t, uint256_t> Pers::gen_publickey(uint256_t &p, uint256_t &q, uint
 
 }
 
-pair< tuple<uint256_t, uint256_t, uint256_t>, pair<uint512_t, uint256_t>> Pers::gen_keyset()
+pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> Pers::gen_keyset()
 {
-	uint256_t p = gen_prime();
-	uint256_t q = gen_prime();
+	cpp_int p = gen_prime();
+	cpp_int q = gen_prime();
 
-	uint256_t phi_n = prime_euler(p, q);
+	cpp_int phi_n = prime_euler(p, q);
 
-	pair<uint512_t, uint256_t> publickey = gen_publickey(p, q, phi_n);
+	pair<cpp_int, cpp_int> publickey = gen_publickey(p, q, phi_n);
 
-	uint256_t d = inverse_mod(publickey.second, phi_n);
+	cpp_int d = inverse_mod(publickey.second, phi_n);
 
-	tuple<uint256_t, uint256_t, uint256_t> privatekey = make_tuple(d, p, q);
+	tuple<cpp_int, cpp_int, cpp_int> privatekey = make_tuple(d, p, q);
 
-	pair< tuple<uint256_t, uint256_t, uint256_t>, pair<uint512_t, uint256_t>> keyset = make_pair(privatekey, publickey);
+	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> keyset = make_pair(privatekey, publickey);
 
 	return keyset;
 }
 
 Pers::Pers()
 {
-	pair< tuple<uint256_t, uint256_t, uint256_t>, pair<uint512_t, uint256_t>> keyset = gen_keyset();
+	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> keyset = gen_keyset();
 	this->publickey = keyset.second;
 	this->privatekey = keyset.first;
 }
 
-Pers::Pers(pair<uint512_t, uint256_t> publ)
+Pers::Pers(pair<cpp_int, cpp_int> publ)
 {
 	this->publickey = publ;
 }
@@ -49,17 +49,17 @@ Pers::Pers(pair<uint512_t, uint256_t> publ)
 
 void Pers::setkey()
 {
-	pair< tuple<uint256_t, uint256_t, uint256_t>, pair<uint512_t, uint256_t>> keyset = gen_keyset();
+	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> keyset = gen_keyset();
 	this->publickey = keyset.second;
 	this->privatekey = keyset.first;
 }
 
-pair<uint512_t, uint256_t> Pers::getpublickey()
+pair<cpp_int, cpp_int> Pers::getpublickey()
 {
 	return this->publickey;
 }
 
-uint512_t Pers::encrypt(uint512_t M, pair<uint512_t, uint256_t> & publkey)
+cpp_int Pers::encrypt(cpp_int M, pair<cpp_int, cpp_int> & publkey)
 {	
 	//n = publickey.first;
 	//e = publickey.second;
@@ -72,36 +72,36 @@ uint512_t Pers::encrypt(uint512_t M, pair<uint512_t, uint256_t> & publkey)
 
 	// C = M^e mod n
 
-	return /*mod(pow(M, this->publickey.second), this->publickey.first)*/ power(M, publkey.second, publkey.first);
+	return horner_pow(M, publkey.second, publkey.first);
 }
 
-uint512_t Pers::decrypt(uint512_t C/*, tuple<uint256_t, uint256_t, uint256_t> &privatekey*/)
+cpp_int Pers::decrypt(cpp_int C)
 {
 	// d = privatekey<0>
 	// n = privatekey<1> * privatekey<2>
 	// M = C^d mod n
-	uint256_t d;
+	cpp_int d;
 	tie(d, ignore, ignore) = this->privatekey;
 
-	return /*mod(pow(C, d), this->publickey.first)*/ power(C, d, this->publickey.first);
+	return /*mod(pow(C, d), this->publickey.first)*/ horner_pow(C, d, this->publickey.first);
 }
 
-pair< uint512_t, uint512_t> Pers::sign_message(uint512_t& M/*, tuple<uint256_t, uint256_t, uint256_t>& privatekey*/)
+pair< cpp_int, cpp_int> Pers::sign_message(cpp_int& M)
 {
 	// d = privatekey<0>
 	// n = privatekey<1> * privatekey<2> // n = publickey.first
 	// S = M^d mod n
 
-	uint256_t d;
+	cpp_int d;
 	tie(d, ignore, ignore) = this->privatekey;
 
-	uint512_t S = /*mod(pow(M, d), this->publickey.first)*/power(M, d, this->publickey.first);
+	cpp_int S = horner_pow(M, d, this->publickey.first);
 
 	return make_pair(M, S);
 
 }
 
-bool Pers::check_signature(pair< uint512_t, uint512_t>& sign_mes, pair< uint512_t, uint256_t>& publickey)
+bool Pers::check_signature(pair< cpp_int, cpp_int> sign_mes, pair< cpp_int, cpp_int> publickey)
 {
 	// M = sign_mes.first
 	// S = sign_mes.second
@@ -111,7 +111,7 @@ bool Pers::check_signature(pair< uint512_t, uint512_t>& sign_mes, pair< uint512_
 	// M = S^e mod n
 
 
-	if ( /*mod(pow(sign_mes.second, publickey.second), publickey.first)*/power(sign_mes.second, publickey.second, publickey.first) == sign_mes.first)
+	if (horner_pow(sign_mes.second, publickey.second, publickey.first) == sign_mes.first)
 	{
 		return true;
 	}
@@ -123,10 +123,10 @@ bool Pers::check_signature(pair< uint512_t, uint512_t>& sign_mes, pair< uint512_
 
 }
 
-pair< uint512_t, uint512_t> Pers::RSA_sender(Pers &B, uint512_t k)
+pair< cpp_int, cpp_int> Pers::RSA_sender(Pers &B, cpp_int k)
 {
 
-	{////pair<uint256_t, uint256_t> Apublic = this->publickey;
+	{////pair<cpp_int, cpp_int> Apublic = this->publickey;
 	
 
 	//// public key: (n,e)
@@ -141,14 +141,14 @@ pair< uint512_t, uint512_t> Pers::RSA_sender(Pers &B, uint512_t k)
 	//// A_d = get<0>this->privatekey
 	}
 
-	pair<uint512_t, uint256_t> Bpublic = B.getpublickey();
+	pair<cpp_int, cpp_int> Bpublic = B.getpublickey();
 	if (this->publickey.first > Bpublic.first)
 	{
 		this->setkey();
 		RSA_sender(B, k);
 	}
 
-	uint512_t S = sign_message(k).second;
+	cpp_int S = sign_message(k).second;
 	S = encrypt(S, Bpublic);
 
 	k = encrypt(k, Bpublic);
@@ -159,7 +159,7 @@ pair< uint512_t, uint512_t> Pers::RSA_sender(Pers &B, uint512_t k)
 
 	{//// S = k^A_d mod An
 
-	//uint512_t S = /*mod(pow(k, get<0>(this->privatekey)), this->publickey.first)*/ power(k, get<0>(this->privatekey), this->publickey.first);
+	//cpp_int S = /*mod(pow(k, get<0>(this->privatekey)), this->publickey.first)*/ power(k, get<0>(this->privatekey), this->publickey.first);
 
 	//// S1 = S^Be mod Bn
 
@@ -174,9 +174,9 @@ pair< uint512_t, uint512_t> Pers::RSA_sender(Pers &B, uint512_t k)
 	}
 }
 
-uint512_t Pers::RSA_reciever(Pers& A, pair<uint512_t, uint512_t> mes)
+cpp_int Pers::RSA_reciever(Pers& A, pair<cpp_int, cpp_int> mes)
 {
-	pair<uint512_t, uint256_t> Apublic = A.getpublickey();
+	pair<cpp_int, cpp_int> Apublic = A.getpublickey();
 
 	// mes = (k1, S1)
 	// k = k1 ^ Bd mod Bn
@@ -188,14 +188,14 @@ uint512_t Pers::RSA_reciever(Pers& A, pair<uint512_t, uint512_t> mes)
 	// B_d = get<0>this->privatekey
 	// B_n = this->publickey.first
 
-	uint512_t k = mes.first;
-	uint512_t S = mes.second;
+	cpp_int k = mes.first;
+	cpp_int S = mes.second;
 
 	k = decrypt(k);
 	S = decrypt(S);
 
 
-	//uint512_t d;
+	//cpp_int d;
 	//tie(d, ignore, ignore) = privatekey;
 
 	//// k = k1 ^ B_d mod B_n 
@@ -206,7 +206,7 @@ uint512_t Pers::RSA_reciever(Pers& A, pair<uint512_t, uint512_t> mes)
 	//S = /*mod(pow(S, get<0>(this->privatekey)), this->publickey.first)*/power(S, d, publickey.first);
 
 	//// k == S^ A_e mod A_n
-	pair<uint512_t, uint512_t> sign = make_pair(k, S);
+	pair<cpp_int, cpp_int> sign = make_pair(k, S);
 	if (check_signature(sign, Apublic))
 	{
 		cout << "Message recieved" << endl;
@@ -227,5 +227,11 @@ void Pers::printpublickey()
 	cout << hex << this->publickey.first << endl;
 	cout << "Public exponent: " << endl;
 	cout << hex << this->publickey.second << endl;
+}
+
+void Pers::printprivatekey()
+{
+	// d p q
+	cout << "d:" << hex << get<0>(this->privatekey) << endl;
 }
 

@@ -14,7 +14,8 @@
 #include <tuple>
 
 #include <boost/random.hpp> //rand
-#include <boost/multiprecision/cpp_int.hpp> // uint256_t
+#include <boost/random/independent_bits.hpp>
+#include <boost/multiprecision/cpp_int.hpp> // cpp_int
 
 using namespace std;
 using namespace boost::multiprecision;
@@ -31,8 +32,11 @@ vector<int> dividers = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
    // is the Mersenne twister mt19937 engine, and we'll generate 256 bit
    // random values, independent_bits_engine will make multiple calls
    // to the underlying engine until we have the requested number of bits:
-typedef independent_bits_engine<mt19937, 256, uint256_t> generator_type;
-generator_type gen;
+// obtain a seed from the timer
+
+typedef independent_bits_engine<mt19937, 256, cpp_int> generator_type;
+generator_type gen (static_cast<unsigned int>(std::time(0)));
+
 
 
 
@@ -44,35 +48,33 @@ class Pers
 public:
 
 	Pers(); //constructor
-	Pers(pair<uint512_t, uint256_t> publ); //constructor
+	Pers(pair<cpp_int, cpp_int> publ); //constructor
 
-	pair<uint512_t, uint256_t> getpublickey();
+	pair<cpp_int, cpp_int> getpublickey();
 	void printpublickey();
 
-	pair< uint512_t, uint512_t> sign_message(uint512_t& M/*, tuple<uint256_t, uint256_t, uint256_t>& privatekey*/);
-	bool check_signature(pair< uint512_t, uint512_t>& sign_mes, pair< uint512_t, uint256_t>& publickey);
+	void printprivatekey();
+
+	pair< cpp_int, cpp_int> sign_message(cpp_int& M/*, tuple<cpp_int, cpp_int, cpp_int>& privatekey*/);
+	bool check_signature(pair< cpp_int, cpp_int> sign_mes, pair< cpp_int, cpp_int> publickey);
 	
-	uint512_t encrypt(uint512_t M, pair<uint512_t, uint256_t>& publkey);
-	uint512_t decrypt(uint512_t C/*, tuple<uint256_t, uint256_t, uint256_t>& privatekey*/);
+	cpp_int encrypt(cpp_int M, pair<cpp_int, cpp_int>& publkey);
+	cpp_int decrypt(cpp_int C/*, tuple<cpp_int, cpp_int, cpp_int>& privatekey*/);
 
 	void setkey();
 
-	pair< uint512_t, uint512_t> RSA_sender(Pers &B, uint512_t k);
-	uint512_t RSA_reciever(Pers& A, pair<uint512_t, uint512_t> mes);
+	pair< cpp_int, cpp_int> RSA_sender(Pers &B, cpp_int k);
+	cpp_int RSA_reciever(Pers& A, pair<cpp_int, cpp_int> mes);
 
 private:
 
 
-	pair<uint512_t, uint256_t> publickey; //pbk value
-	tuple<uint256_t, uint256_t, uint256_t> privatekey; //pvk value
+	pair<cpp_int, cpp_int> publickey; //pbk value
+	tuple<cpp_int, cpp_int, cpp_int> privatekey; //pvk value
 
 
-	pair<uint512_t, uint256_t> gen_publickey(uint256_t& p, uint256_t& q, uint256_t& phi_n); // generate pbk
-	pair< tuple<uint256_t, uint256_t, uint256_t>, pair<uint512_t, uint256_t>> gen_keyset(); // generate pbk and prk
-
-
-
-		
+	pair<cpp_int, cpp_int> gen_publickey(cpp_int& p, cpp_int& q, cpp_int& phi_n); // generate pbk
+	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> gen_keyset(); // generate pbk and prk
 
 
 

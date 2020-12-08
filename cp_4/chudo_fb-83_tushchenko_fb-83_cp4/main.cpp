@@ -22,15 +22,46 @@ int main()
 	cout << try_prime(4625747) << endl;*/
 
 	Pers Chris, Den;
-	//uint1024_t *serv_key_n = 0xDE5CCC03C4499D5E75AEBE8C3D7FEFC39FCC70C0921C49760467AFBF0CCBAE6F;
-pair <uint512_t, uint256_t> server_key = make_pair(0xD6986EC43B8DF7A6732BA2FE7C98F911, 0x10001);
-	Pers Server(server_key);
+////	cpp_int serv_key_n;
+////	cout << "enter serv n " << endl;
+////	cin >> serv_key_n;
+////pair <cpp_int, cpp_int> server_key = make_pair(serv_key_n, 0x10001);
+////	Pers Server(server_key);
+//
+	pair <cpp_int, cpp_int> chris_key = Chris.getpublickey();
 
-	pair <uint512_t, uint256_t> chris_key = Chris.getpublickey();
+	Chris.printpublickey();
+	Chris.printprivatekey();
 
-	cout << hex << chris_key.first << endl <<  chris_key.second << endl;
+	cpp_int encr = Chris.encrypt(7, chris_key);
+	cout << "encrypted:" << endl << hex << encr << endl;
 
-	cout << sizeof(chris_key.first) << endl;
+	cpp_int decr = Chris.decrypt(encr);
+
+	cout << "decrypted:" << decr << endl;
+
+
+	//cpp_int mess = 7;
+
+	//pair< cpp_int, cpp_int> signat = Chris.sign_message(mess);
+
+	//// M S
+	//cout << "Message: " << signat.first << endl;
+	//cout << "Signature: " << signat.second << endl;
+
+	////pair<cpp_int, cpp_int> signat = make_pair(mess, sign);
+	//
+
+	//cout << "Verification: " << Den.check_signature(signat, chris_key) << endl;
+
+
+	/*pair <cpp_int, cpp_int> s = Chris.sign_message(mess);
+
+	cout << "signature" << endl << hex << s.second << endl;*/
+
+
+	//cout << horner_pow(785, 679, 851) << endl;
+
 
 
 	return 0;
