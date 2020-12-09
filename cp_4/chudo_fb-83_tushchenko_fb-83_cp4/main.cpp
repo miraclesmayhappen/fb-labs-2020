@@ -21,46 +21,67 @@ int main()
 	cout << try_prime(98747) << endl;
 	cout << try_prime(4625747) << endl;*/
 
-	Pers Chris, Den;
-////	cpp_int serv_key_n;
-////	cout << "enter serv n " << endl;
-////	cin >> serv_key_n;
-////pair <cpp_int, cpp_int> server_key = make_pair(serv_key_n, 0x10001);
-////	Pers Server(server_key);
+	//Pers Chris, Den;
+	//Pers Chris;
+//	cpp_int serv_key_n;
+//	cout << "enter serv n " << endl;
+//	cin >> serv_key_n;
+//pair <cpp_int, cpp_int> server_key = make_pair(serv_key_n, 0x10001);
+//	Pers Server(server_key);
 //
-	pair <cpp_int, cpp_int> chris_key = Chris.getpublickey();
+	//pair <cpp_int, cpp_int> chris_key = Chris.getpublickey();
 
+
+	//Chris.printpublickey();
+
+
+	////cpp_int mess = 0b1001000011011111010101011010001110001;
+
+	////pair< cpp_int, cpp_int> signat = Chris.sign_message(mess);
+
+	////// M S
+	////cout << "Message: " << signat.first << endl;
+	////cout << "Signature: " << signat.second << endl;
+
+
+
+	//pair< cpp_int, cpp_int> sentkey = Chris.RSA_sender(Den, 777777777777);
+
+	//cout << "sentkey k: " << sentkey.first << endl << "sentkey s: " << sentkey.second << endl;
+
+	//cpp_int received_key = Den.RSA_reciever(Chris, sentkey);
+
+	//cout << "receivedkey: " << received_key << endl;
+
+	//Den.check_signature(signat, chris_key);
+
+
+
+
+	Pers Server = Server.cr_s("serv_k.txt");
+	Server.printpublickey();
+
+	Pers Chris;
 	Chris.printpublickey();
-	Chris.printprivatekey();
 
-	cpp_int encr = Chris.encrypt(7, chris_key);
-	cout << "encrypted:" << endl << hex << encr << endl;
+	pair<cpp_int, cpp_int> servk = Server.getpublickey();
+	
+	cpp_int M=1, S=1;
+	cout << "enter message" << endl;
+	//cin >> M;
+	M = 111;
+	cout << "enter signature" << endl;
+	cin.clear();
+	//cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	cin >> S;
+	
 
-	cpp_int decr = Chris.decrypt(encr);
+	pair<cpp_int, cpp_int> mes = make_pair(M, S);
 
-	cout << "decrypted:" << decr << endl;
-
-
-	//cpp_int mess = 7;
-
-	//pair< cpp_int, cpp_int> signat = Chris.sign_message(mess);
-
-	//// M S
-	//cout << "Message: " << signat.first << endl;
-	//cout << "Signature: " << signat.second << endl;
-
-	////pair<cpp_int, cpp_int> signat = make_pair(mess, sign);
-	//
-
-	//cout << "Verification: " << Den.check_signature(signat, chris_key) << endl;
+	Chris.check_signature(mes, servk);
 
 
-	/*pair <cpp_int, cpp_int> s = Chris.sign_message(mess);
 
-	cout << "signature" << endl << hex << s.second << endl;*/
-
-
-	//cout << horner_pow(785, 679, 851) << endl;
 
 
 

@@ -1,94 +1,39 @@
 #include "Header.h"
 
-////get x^n
-//cpp_int pow(cpp_int x, cpp_int n)
-//{
-//	if (n == 0)
-//		return 1;
-//	else if (n == 1)
-//		return x;
-//	else if (n % 2 == 0)
-//		return pow(x * x, n / 2);
-//	else
-//		return pow(x * x, n / 2) * x;
-//}
-//
-//modulus count
+// a mod b
 cpp_int mod(cpp_int a, cpp_int b)
 {
 	return (a % b + b) % b;
 }
 
-//// x*y mod p
-//cpp_int multiplymod(cpp_int x, cpp_int y, cpp_int p)
-//{
-//	cpp_int res = 0;
-//	cpp_int b = x % p;
-//
-//	while (y > 0)
-//	{
-//		if (y % 2 == 1)
-//		{
-//			res = (res + b) % p;
-//		}
-//
-//		b = (2 * b) % p;
-//		y /= 2;
-//	}
-//
-//	return res % p;
-//}
-
-// x^y mod p
-/* based on Applied Cryptography by Bruce Schneier*/
-//cpp_int power(cpp_int x, cpp_int y, cpp_int p)
-//
-//{
-//	cpp_int res = 1;
-//
-//	x = x % p; 
-//
-//	if (x == 0) return 0; 
-//
-//	while (y > 0)
-//	{
-//		// If y is odd, multiply x with result  
-//		if (y % 2 == 1)
-//		{
-//			res = (res * x) % p;
-//		}
-//
-//		// y must be even now  
-//		x = (x * x) % p;
-//		y = y/2;  
-//
-//	}
-//	return res % p;
-//}
-
+// x^m mod p
 cpp_int horner_pow(cpp_int x, cpp_int m, cpp_int p)
 {
 	x = x % p;
 	cpp_int y = 1;
 	vector<cpp_int> e_s;
 	// m = e0 + e1*2+e2*2^2 +...
+	//cout << "binary of " << m << endl;
 	while (m != 0)
 	{
 		e_s.push_back(m % 2);
 			m /= 2;
 	}
 	//e_s basicly stores reversed binary of m
-	//cout << "binary:" << endl;
-	//for (int i = e_s.size() - 1; i >= 0; i--)
-	//{
-	//	cout << e_s.at(i);
-	//}
-	//cout << endl;
+	
+	
+	
+	/*for (int i = e_s.size() - 1; i >= 0; i--)
+	{
+		cout << e_s.at(i);
+	}
+	cout << endl;*/
 
 	for (int i = e_s.size() - 1; i >=0 ; i--)
 	{
 		// y = y * x^ei
 		// y = y * y
+
 		//cout << "step" << i << "	y=" << y << "	e=" << e_s.at(i) <<endl;
 		if (e_s.at(i) == 1)
 		{
@@ -109,7 +54,7 @@ cpp_int horner_pow(cpp_int x, cpp_int m, cpp_int p)
 	return y;
 }
 
-//eea
+//eea for gcd and inverse
 pair<cpp_int, cpp_int> eea(cpp_int a, cpp_int b)
 {
 	pair<cpp_int, cpp_int> res; //gcd, inv
@@ -161,14 +106,14 @@ pair<cpp_int, cpp_int> eea(cpp_int a, cpp_int b)
 	return res;
 }
 
-//gcd 
+//gcd (a, m)
 cpp_int gcd(cpp_int a, cpp_int m)
 {
 	pair<cpp_int, cpp_int> ee = eea(a, m);
 	return ee.first;
 }
 
-//Inverse Modulo
+// a^-1 mod m
 cpp_int inverse_mod(cpp_int a, cpp_int m)
 {
 	pair <cpp_int, cpp_int> ee; //gcd, inv
@@ -260,7 +205,8 @@ bool miller_rabin(cpp_int p)
 			{
 				// xrc = x^d mod p
 				cpp_int xrc = x;/*= /*mod(pow(x, d), p) power(x, /*d2, p)*/
-								
+							
+				bool prime_flag = false;
 				for (int r = 1; r <= s-1; r++)
 				{
 					//x_r = x_r-1 ^2
@@ -269,6 +215,7 @@ bool miller_rabin(cpp_int p)
 					// p is strongly pseudo prime for x
 					if (xrc == p-1) 
 					{
+						prime_flag = true;
 						break;
 					}
 					else 
@@ -278,6 +225,10 @@ bool miller_rabin(cpp_int p)
 							return false;
 						}
 
+				}
+				if (!prime_flag)
+				{
+					return false;
 				}
 
 			}
@@ -300,7 +251,10 @@ bool try_prime(cpp_int num)
 		return false;
 	}
 	else return true;
+
 }
+
+///////////////////////////////////////////////////////////
 
 cpp_int gen_prime()
 {

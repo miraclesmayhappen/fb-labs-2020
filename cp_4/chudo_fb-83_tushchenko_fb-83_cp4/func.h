@@ -1,5 +1,7 @@
 #include "sidefunc.h"
 
+
+/********************************************KEY GENERATOR*********************************************************/
 pair <cpp_int, cpp_int> Pers::gen_publickey(cpp_int &p, cpp_int &q, cpp_int &phi_n)
 {
 	cpp_int e;
@@ -18,6 +20,7 @@ pair <cpp_int, cpp_int> Pers::gen_publickey(cpp_int &p, cpp_int &q, cpp_int &phi
 
 pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> Pers::gen_keyset()
 {
+	cout << "Key pair generating..." << endl;
 	cpp_int p = gen_prime();
 	cpp_int q = gen_prime();
 
@@ -30,22 +33,9 @@ pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> Pers::gen_keyset
 	tuple<cpp_int, cpp_int, cpp_int> privatekey = make_tuple(d, p, q);
 
 	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> keyset = make_pair(privatekey, publickey);
-
-	return keyset;
+	cout << "Key pair generated" << endl;
+	return keyset; 
 }
-
-Pers::Pers()
-{
-	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> keyset = gen_keyset();
-	this->publickey = keyset.second;
-	this->privatekey = keyset.first;
-}
-
-Pers::Pers(pair<cpp_int, cpp_int> publ)
-{
-	this->publickey = publ;
-}
-
 
 void Pers::setkey()
 {
@@ -54,11 +44,36 @@ void Pers::setkey()
 	this->privatekey = keyset.first;
 }
 
+
+/****************************************************CONSTRUCTOR****************************************************/
+Pers::Pers()
+{
+	//pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> keyset = gen_keyset();
+	//this->publickey = keyset.second;
+	//this->privatekey = keyset.first;
+	this->setkey();
+}
+
+Pers::Pers(pair<cpp_int, cpp_int> publ)
+{
+	this->publickey = publ;
+}
+
+
+/****************************************************GETTERS********************************************************/
 pair<cpp_int, cpp_int> Pers::getpublickey()
 {
 	return this->publickey;
 }
 
+//tuple<cpp_int, cpp_int, cpp_int> Pers::getprivatekey()
+//{
+//	return this->privatekey;
+//
+//}
+
+
+/******************************************************ENCRYPTION****************************************************/
 cpp_int Pers::encrypt(cpp_int M, pair<cpp_int, cpp_int> & publkey)
 {	
 	//n = publickey.first;
@@ -78,25 +93,35 @@ cpp_int Pers::encrypt(cpp_int M, pair<cpp_int, cpp_int> & publkey)
 cpp_int Pers::decrypt(cpp_int C)
 {
 	// d = privatekey<0>
-	// n = privatekey<1> * privatekey<2>
-	// M = C^d mod n
+	// n = publickey.first
+	cout << "Decrypting..." << endl;
+
 	cpp_int d;
 	tie(d, ignore, ignore) = this->privatekey;
+	
+	//cout << "d=" << d << endl;
 
-	return /*mod(pow(C, d), this->publickey.first)*/ horner_pow(C, d, this->publickey.first);
+	// M = C^d mod n
+	return horner_pow(C, d, this->publickey.first);
 }
 
+
+/******************************************************SIGNATURE****************************************************/
 pair< cpp_int, cpp_int> Pers::sign_message(cpp_int& M)
 {
 	// d = privatekey<0>
-	// n = privatekey<1> * privatekey<2> // n = publickey.first
-	// S = M^d mod n
-
+	// n = publickey.first
+	cout << "Signing message..." << endl;
 	cpp_int d;
 	tie(d, ignore, ignore) = this->privatekey;
+//	cout << "Message: " << M << endl;
+//	cout << "d = " << d << endl;
 
+	// S = M^d mod n
 	cpp_int S = horner_pow(M, d, this->publickey.first);
 
+	//cout << "S = M^d mod n = " << S << endl;
+	cout << "Message signed" << endl;
 	return make_pair(M, S);
 
 }
@@ -110,19 +135,28 @@ bool Pers::check_signature(pair< cpp_int, cpp_int> sign_mes, pair< cpp_int, cpp_
 
 	// M = S^e mod n
 
+	cout << "Checking signature" << endl;
+
+	//cout << "Message: " << sign_mes.first << endl;
+	//cout << "M = S^e mod n = " << horner_pow(sign_mes.second, publickey.second, publickey.first) << endl;
+
 
 	if (horner_pow(sign_mes.second, publickey.second, publickey.first) == sign_mes.first)
 	{
+		cout << "Signature verified" << endl;
 		return true;
 	}
 
 	else
 	{
+		cout << "Signature not verified" << endl;
 		return false;
 	}
 
 }
 
+
+/******************************************************RSA PROTOCOL***************************************************/
 pair< cpp_int, cpp_int> Pers::RSA_sender(Pers &B, cpp_int k)
 {
 
@@ -144,8 +178,9 @@ pair< cpp_int, cpp_int> Pers::RSA_sender(Pers &B, cpp_int k)
 	pair<cpp_int, cpp_int> Bpublic = B.getpublickey();
 	if (this->publickey.first > Bpublic.first)
 	{
+		cout << "Unable to send key, another key needed" << endl;
 		this->setkey();
-		RSA_sender(B, k);
+		return RSA_sender(B, k);
 	}
 
 	cpp_int S = sign_message(k).second;
@@ -155,26 +190,9 @@ pair< cpp_int, cpp_int> Pers::RSA_sender(Pers &B, cpp_int k)
 
 	return make_pair(k, S);
 
-
-
-	{//// S = k^A_d mod An
-
-	//cpp_int S = /*mod(pow(k, get<0>(this->privatekey)), this->publickey.first)*/ power(k, get<0>(this->privatekey), this->publickey.first);
-
-	//// S1 = S^Be mod Bn
-
-	//S = /*mod(pow(S, Bpublic.second), Bpublic.first)*/ power (S, Bpublic.second, Bpublic.first);
-
-	//// k1 = k^Be mod Bn
-
-	//k = /*mod(pow(k, Bpublic.second), Bpublic.first)*/power(k, Bpublic.second, Bpublic.first);
-
-	////(k1, S1)
-	//return make_pair(k, S);
-	}
 }
 
-cpp_int Pers::RSA_reciever(Pers& A, pair<cpp_int, cpp_int> mes)
+cpp_int Pers::RSA_reciever(Pers &A, pair<cpp_int, cpp_int> mes)
 {
 	pair<cpp_int, cpp_int> Apublic = A.getpublickey();
 
@@ -194,22 +212,11 @@ cpp_int Pers::RSA_reciever(Pers& A, pair<cpp_int, cpp_int> mes)
 	k = decrypt(k);
 	S = decrypt(S);
 
-
-	//cpp_int d;
-	//tie(d, ignore, ignore) = privatekey;
-
-	//// k = k1 ^ B_d mod B_n 
-	//k = /*mod(pow(k, get<0>(this->privatekey)), this->publickey.first)*/power(k, d, publickey.first);
-
-	//// S = S1 ^ B_d mod B_n
-
-	//S = /*mod(pow(S, get<0>(this->privatekey)), this->publickey.first)*/power(S, d, publickey.first);
-
 	//// k == S^ A_e mod A_n
 	pair<cpp_int, cpp_int> sign = make_pair(k, S);
 	if (check_signature(sign, Apublic))
 	{
-		cout << "Message recieved" << endl;
+		cout << "Key recieved" << endl;
 		return k;
 	}
 
@@ -221,17 +228,69 @@ cpp_int Pers::RSA_reciever(Pers& A, pair<cpp_int, cpp_int> mes)
 
 }
 
+
+/**********************************************************PRINT****************************************************/
 void Pers::printpublickey()
 {
 	cout << "Modulus:" << endl;
 	cout << hex << this->publickey.first << endl;
 	cout << "Public exponent: " << endl;
-	cout << hex << this->publickey.second << endl;
+	cout << hex<< this->publickey.second << endl;
 }
 
-void Pers::printprivatekey()
+//
+//void Pers::printprivatekey()
+//{
+//	// d p q
+//	cout << "d:" <</* hex <<*/ get<0>(this->privatekey) << endl;
+//	cout << "p:" <</* hex <<*/ get<1>(this->privatekey) << endl;
+//	cout << "q:" <</* hex <<*/ get<2>(this->privatekey) << endl;
+//}
+
+/******************************************************SERVER*******************************************************/
+
+Pers Pers::cr_s(string path/*="serv_k.txt"*/)
 {
-	// d p q
-	cout << "d:" << hex << get<0>(this->privatekey) << endl;
-}
+	ifstream fin;
+	fin.open(path);
+	pair <cpp_int, cpp_int> server_key;
+	//check for file open failure
+	if (fin.fail())
+	{
+		cout << "Error opening server key file" << endl;
+		fin.close();
+		//system("PAUSE");
+		server_key = make_pair(0, 0);
+
+		//Pers Server(server_key);
+		//return Server;
+
+	}
+	else
+	{
+		cout << "Server key file is opened successfully" << endl;
+
+		cpp_int serv_key_n, serv_key_e;
+
+		//for (int i = 0; i < 2; i++)
+		//{
+		//	if (i == 0)
+		//	{
+		fin >> serv_key_n;
+		//}
+
+		//if (i == 1)
+		//{
+		fin >> serv_key_e;
+		//	}
+
+		//}
+
+		server_key = make_pair(serv_key_n, serv_key_e);
+	}
+
+	Pers Server(server_key);
+	return Server;
+	}
+
 
