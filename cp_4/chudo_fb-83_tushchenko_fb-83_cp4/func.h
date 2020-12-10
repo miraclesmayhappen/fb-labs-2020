@@ -59,6 +59,42 @@ Pers::Pers(pair<cpp_int, cpp_int> publ)
 	this->publickey = publ;
 }
 
+Pers::Pers(string path/*cpp_int n, cpp_int e, cpp_int d, cpp_int p, cpp_int q*/)
+{
+	ifstream fin;
+	fin.open(path);
+	pair <cpp_int, cpp_int> ne;
+	tuple<cpp_int, cpp_int, cpp_int> dpq;
+	cpp_int n, e, d, p, q;
+	//check for file open failure
+	if (fin.fail())
+	{
+		cout << "Error opening user key file" << endl;
+		fin.close();
+		
+		ne = make_pair(0, 0);
+	}
+	else
+	{
+		cout << "User key file is opened successfully" << endl;
+
+		fin >> hex >> n;
+		fin >> hex >> e;
+		fin >> hex >> d;
+		fin >> hex >> p;
+		fin >> hex >> q;
+
+
+		ne = make_pair(n,e);
+		dpq = make_tuple(d, p, q);
+	}
+
+	ne = make_pair(n, e);
+	this->publickey = ne;
+
+	dpq = make_tuple(d, p, q);
+	this->privatekey = dpq;
+}
 
 /****************************************************GETTERS********************************************************/
 pair<cpp_int, cpp_int> Pers::getpublickey()
@@ -126,7 +162,7 @@ pair< cpp_int, cpp_int> Pers::sign_message(cpp_int& M)
 
 }
 
-bool Pers::check_signature(pair< cpp_int, cpp_int> sign_mes, pair< cpp_int, cpp_int> publickey)
+bool Pers::check_signature(/*pair< cpp_int, cpp_int> sign_mes*/cpp_int M, cpp_int S, pair< cpp_int, cpp_int> publickey)
 {
 	// M = sign_mes.first
 	// S = sign_mes.second
@@ -137,11 +173,11 @@ bool Pers::check_signature(pair< cpp_int, cpp_int> sign_mes, pair< cpp_int, cpp_
 
 	cout << "Checking signature" << endl;
 
-	//cout << "Message: " << sign_mes.first << endl;
-	//cout << "M = S^e mod n = " << horner_pow(sign_mes.second, publickey.second, publickey.first) << endl;
+	//cout << "Message: " << /*sign_mes.first */M<< endl;
+	//cout << "M = S^e mod n = " << horner_pow(/*sign_mes.second*/S, publickey.second, publickey.first) << endl;
 
 
-	if (horner_pow(sign_mes.second, publickey.second, publickey.first) == sign_mes.first)
+	if (horner_pow(/*sign_mes.second*/S, publickey.second, publickey.first) == /*sign_mes.first*/M)
 	{
 		cout << "Signature verified" << endl;
 		return true;
@@ -180,6 +216,7 @@ pair< cpp_int, cpp_int> Pers::RSA_sender(Pers &B, cpp_int k)
 	{
 		cout << "Unable to send key, another key needed" << endl;
 		this->setkey();
+		this->printpublickey();
 		return RSA_sender(B, k);
 	}
 
@@ -192,7 +229,7 @@ pair< cpp_int, cpp_int> Pers::RSA_sender(Pers &B, cpp_int k)
 
 }
 
-cpp_int Pers::RSA_reciever(Pers &A, pair<cpp_int, cpp_int> mes)
+cpp_int Pers::RSA_reciever(Pers &A, /*pair<cpp_int, cpp_int> mes*/cpp_int &M, cpp_int &S)
 {
 	pair<cpp_int, cpp_int> Apublic = A.getpublickey();
 
@@ -206,15 +243,17 @@ cpp_int Pers::RSA_reciever(Pers &A, pair<cpp_int, cpp_int> mes)
 	// B_d = get<0>this->privatekey
 	// B_n = this->publickey.first
 
-	cpp_int k = mes.first;
-	cpp_int S = mes.second;
-
+	cpp_int k = /*mes.first*/M;
+	cpp_int Ss = /*mes.second*/S;
+	/*cout << endl << k << endl;*/
 	k = decrypt(k);
-	S = decrypt(S);
+	/*cout << k << endl << Ss << endl;*/
+	Ss = decrypt(Ss);
+	/*cout << Ss << endl << endl;*/
 
 	//// k == S^ A_e mod A_n
-	pair<cpp_int, cpp_int> sign = make_pair(k, S);
-	if (check_signature(sign, Apublic))
+	//pair<cpp_int, cpp_int> sign = make_pair(k, Ss);
+	if (check_signature(/*sign*/k, Ss, Apublic))
 	{
 		cout << "Key recieved" << endl;
 		return k;
@@ -238,14 +277,14 @@ void Pers::printpublickey()
 	cout << hex<< this->publickey.second << endl;
 }
 
-//
-//void Pers::printprivatekey()
-//{
-//	// d p q
-//	cout << "d:" <</* hex <<*/ get<0>(this->privatekey) << endl;
-//	cout << "p:" <</* hex <<*/ get<1>(this->privatekey) << endl;
-//	cout << "q:" <</* hex <<*/ get<2>(this->privatekey) << endl;
-//}
+
+void Pers::printprivatekey()
+{
+	// d p q
+	cout << "d:" <</* hex <<*/ get<0>(this->privatekey) << endl;
+	cout << "p:" <</* hex <<*/ get<1>(this->privatekey) << endl;
+	cout << "q:" <</* hex <<*/ get<2>(this->privatekey) << endl;
+}
 
 /******************************************************SERVER*******************************************************/
 
@@ -276,12 +315,12 @@ Pers Pers::cr_s(string path/*="serv_k.txt"*/)
 		//{
 		//	if (i == 0)
 		//	{
-		fin >> serv_key_n;
+		fin >> hex >> serv_key_n;
 		//}
 
 		//if (i == 1)
 		//{
-		fin >> serv_key_e;
+		fin >> hex >> serv_key_e;
 		//	}
 
 		//}

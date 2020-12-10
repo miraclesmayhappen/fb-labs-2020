@@ -59,27 +59,54 @@ int main()
 
 
 	Pers Server = Server.cr_s("serv_k.txt");
+	cout << "Server" << endl;
 	Server.printpublickey();
 
-	Pers Chris;
+	Pers Chris("chris_k.txt");
+	cout << endl << "Chris" << endl;
 	Chris.printpublickey();
+	//Chris.printprivatekey();
+	cout << endl;
 
 	pair<cpp_int, cpp_int> servk = Server.getpublickey();
+	pair<cpp_int, cpp_int> chrisk = Chris.getpublickey();
 	
-	cpp_int M=1, S=1;
-	cout << "enter message" << endl;
-	//cin >> M;
-	M = 111;
-	cout << "enter signature" << endl;
-	cin.clear();
-	//cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	cin >> S;
+			//decrypt
+	cout << endl << "Encryption" << endl;
+	cpp_int mes = 0x12345;
+	cout << "Message: " << mes << endl;
+	cpp_int encr = Server.encrypt(mes, chrisk);
+	cout <<"Encrypted by Server: " << encr << endl;
+	cout << "Decryption by Chris" << endl;
+	cpp_int decr = Chris.decrypt(encr);
+	cout << "Message: " << decr << endl;
 	
 
-	pair<cpp_int, cpp_int> mes = make_pair(M, S);
+			//encrypt
+	cout << endl << "Encryption for Server" << endl;
+	cout << "Message: " << mes << endl;
+	cpp_int serv_encr = Chris.encrypt(mes, servk);
+	cout << "Encrypted by Chris: " << hex << serv_encr << endl;
 
-	Chris.check_signature(mes, servk);
+		//server ReceiveKey
+	cout << endl << "Sending key for server:" << endl;
+	cout << "Original key: " << mes << endl;
+	pair< cpp_int, cpp_int> sentkey = Chris.RSA_sender(Server, mes);
+	cout << "Sent key:" << sentkey.first << endl;
+	cout << "Sent key signature: " << sentkey.second << endl;
 
+
+		//server SendKey
+/*	cout << endl << "Receiving key from Server" << endl;
+	cpp_int k, S;
+	cout << "Enter key:	";
+	cin >> hex >> k;
+	cout << endl << "Enter signature:	";
+	cin >> hex >> S;
+	cpp_int key = Chris.RSA_reciever(Server, k, S);
+	cout << endl << "Received key:	" << key << endl;*/
+
+	
 
 
 

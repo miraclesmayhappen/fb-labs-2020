@@ -49,15 +49,17 @@ public:
 
 	Pers(); //constructor
 	Pers(pair<cpp_int, cpp_int> publ); //constructor
+	Pers(/*cpp_int e, cpp_int p, cpp_int q, cpp_int d, cpp_int n*/string path);
 
 	pair<cpp_int, cpp_int> getpublickey();
 	//tuple<cpp_int, cpp_int, cpp_int> getprivatekey();
 	void printpublickey();
 
-	//void printprivatekey();
+	void printprivatekey();
 
 	pair< cpp_int, cpp_int> sign_message(cpp_int& M/*, tuple<cpp_int, cpp_int, cpp_int>& privatekey*/);
-	bool check_signature(pair< cpp_int, cpp_int> sign_mes, pair< cpp_int, cpp_int> publickey);
+	//bool check_signature(pair< cpp_int, cpp_int> sign_mes, pair< cpp_int, cpp_int> publickey);
+	bool check_signature(/*pair< cpp_int, cpp_int> sign_mes*/cpp_int M, cpp_int S, pair< cpp_int, cpp_int> publickey);
 	
 	cpp_int encrypt(cpp_int M, pair<cpp_int, cpp_int>& publkey);
 	cpp_int decrypt(cpp_int C/*, tuple<cpp_int, cpp_int, cpp_int>& privatekey*/);
@@ -65,7 +67,8 @@ public:
 	void setkey();
 
 	pair< cpp_int, cpp_int> RSA_sender(Pers &B, cpp_int k);
-	cpp_int RSA_reciever(Pers &A, pair<cpp_int, cpp_int> mes);
+	//cpp_int RSA_reciever(Pers &A, pair<cpp_int, cpp_int> mes);
+	cpp_int RSA_reciever(Pers& A, /*pair<cpp_int, cpp_int> mes*/cpp_int& M, cpp_int& S);
 
 	Pers cr_s(string path);
 
