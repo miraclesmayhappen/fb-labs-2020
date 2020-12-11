@@ -2,76 +2,66 @@
 
 int main()
 {
-
-	/*cout << "prostye" << endl;
-	cout << try_prime(2467) << endl;
-	cout << try_prime(2843) << endl;
-	cout << try_prime(2099) << endl;
-	cout << try_prime(3229) << endl;
-	cout << try_prime(3313) << endl;
-	cout << try_prime(2011) << endl;
-	cout << try_prime(3571) << endl;
-
-	cout << "sostavnye" << endl;
-	cout << try_prime(2620) << endl;
-	cout << try_prime(5020) << endl;
-	cout << try_prime(87633) << endl;
-	cout << try_prime(88730) << endl;
-	cout << try_prime(69615) << endl;
-	cout << try_prime(98747) << endl;
-	cout << try_prime(4625747) << endl;*/
-
-	//Pers Chris, Den;
-	//Pers Chris;
-//	cpp_int serv_key_n;
-//	cout << "enter serv n " << endl;
-//	cin >> serv_key_n;
-//pair <cpp_int, cpp_int> server_key = make_pair(serv_key_n, 0x10001);
-//	Pers Server(server_key);
-//
-	//pair <cpp_int, cpp_int> chris_key = Chris.getpublickey();
-
-
-	//Chris.printpublickey();
-
-
-	////cpp_int mess = 0b1001000011011111010101011010001110001;
-
-	////pair< cpp_int, cpp_int> signat = Chris.sign_message(mess);
-
-	////// M S
-	////cout << "Message: " << signat.first << endl;
-	////cout << "Signature: " << signat.second << endl;
-
-
-
-	//pair< cpp_int, cpp_int> sentkey = Chris.RSA_sender(Den, 777777777777);
-
-	//cout << "sentkey k: " << sentkey.first << endl << "sentkey s: " << sentkey.second << endl;
-
-	//cpp_int received_key = Den.RSA_reciever(Chris, sentkey);
-
-	//cout << "receivedkey: " << received_key << endl;
-
-	//Den.check_signature(signat, chris_key);
+	
+	cout << "Enter generator size:	";
+	size_t gen_sz = 256;
+	cin >> dec >> gen_sz;
+	cout << endl << endl;
 
 
 
 
-	Pers Server = Server.cr_s("serv_k.txt");
-	cout << "Server" << endl;
-	Server.printpublickey();
-
-	Pers Chris("chris_k.txt");
+	Pers Chris(gen_sz);
+	cout << "***************************************************************************" << endl;
 	cout << endl << "Chris" << endl;
 	Chris.printpublickey();
-	//Chris.printprivatekey();
-	cout << endl;
+	cout  << "---------------" << endl;
+	Chris.printprivatekey();
+	cout << "***************************************************************************" << endl;
+	cout << endl << endl;
+	pair <cpp_int, cpp_int> chris_key = Chris.getpublickey();
 
-	pair<cpp_int, cpp_int> servk = Server.getpublickey();
+	Pers Den(gen_sz);
+	cout << "***************************************************************************" << endl;
+	cout << endl << "Den" << endl;
+	Den.printpublickey();
+	cout  << "---------------" << endl;
+	Den.printprivatekey();
+	cout << "***************************************************************************" << endl;
+	cout << endl << endl;
+	pair <cpp_int, cpp_int> den_key = Den.getpublickey();
+
+	cpp_int message = 0x123456;
+	pair<cpp_int, cpp_int> chrissign = Chris.sign_message(message);
+	cout << "Chris signes a message" << endl;
+	cout << "(" << message << ", " << chrissign.second << ")" << endl;
+	cout << "Den verifies Chris` signature" << endl;
+	Den.check_signature(chrissign.first, chrissign.second, chris_key);
+	cout << endl << endl;
+
+	cout << "Chris encodes a message for Den" << endl;
+	cpp_int d_enc = Chris.encrypt(message, den_key);
+	cout << "Encoded message:	" << d_enc << endl;
+	cout << "Den decodes message" << endl;
+	cpp_int d_dec = Den.decrypt(d_enc);
+	cout << "Decoded message:	" << d_dec << endl << endl;
+
+
+	cpp_int k = 0x21122019;
+	cout << "Chris sends key "<< k << " to Den" << endl;
+		pair<cpp_int, cpp_int> sentkey = Chris.RSA_sender(Den, k);
+	cout << "Chris` message:	(" << sentkey.first << ", " << sentkey.second << ")" << endl;
+	cout << "Den receives key" << endl;
+	cpp_int rec_k = Den.RSA_reciever(Chris, sentkey.first, sentkey.second);
+	cout << "Den received key " << rec_k << endl << endl;
+
+
+
+
+	//pair<cpp_int, cpp_int> servk = Server.getpublickey();
 	pair<cpp_int, cpp_int> chrisk = Chris.getpublickey();
 	
-			//decrypt
+	/*			//decrypt
 	cout << endl << "Encryption" << endl;
 	cpp_int mes = 0x12345;
 	cout << "Message: " << mes << endl;

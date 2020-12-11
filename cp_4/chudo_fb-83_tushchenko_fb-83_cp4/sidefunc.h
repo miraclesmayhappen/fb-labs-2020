@@ -132,6 +132,10 @@ cpp_int inverse_mod(cpp_int a, cpp_int m)
 
 }
 
+/////////////////////////////////////////////////////////////
+
+
+
 ////////////////////////////////////////////////////////////
 
 bool trial_division(cpp_int num)
@@ -160,6 +164,7 @@ bool miller_rabin(cpp_int p)
 	d = p - 1;
 
 
+
 	//find d and s values
 	// p-1 = d * 2^s
 	while (d % 2 == 0)
@@ -175,7 +180,7 @@ bool miller_rabin(cpp_int p)
 		while (!flag)
 		{
 			//generate x
-			 x = 2 + gen() % (p - 4); // 1<x<p
+			 x = 2 + gen256() % (p - 4); // 1<x<p
 			//check if this x value was already chosen
 			vector<cpp_int>::iterator it = find(used_x.begin(), used_x.end(), x);
 			if (it == used_x.end())
@@ -240,30 +245,37 @@ bool miller_rabin(cpp_int p)
 
 bool try_prime(cpp_int num)
 {
+	cout <<hex << num;
 	if (!trial_division(num))
 	{
-		//cout << "failed trial division" << endl;
+		cout << "	failed trial division" << endl;
 		return false;
 	}
 	else if (!miller_rabin(num))
 	{
-		//cout << "failed miller rabin" << endl;
+		cout << "	failed miller rabin" << endl;
 		return false;
 	}
-	else return true;
+	
+	else
+	{
+		cout << "	is pseudo prime" << endl;
+		return true;
+	}
 
 }
 
 ///////////////////////////////////////////////////////////
 
-cpp_int gen_prime()
+ cpp_int gen_prime(const size_t size = 256)
 {
+	
 	bool flag = false;
 	cpp_int p;
 	while (!flag)
 	{
 
-		p = gen();
+		p = gen256();
 	//	cout << p << endl;
 		flag = try_prime(p);
 

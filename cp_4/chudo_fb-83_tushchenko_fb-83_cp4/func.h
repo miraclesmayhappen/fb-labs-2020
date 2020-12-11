@@ -9,7 +9,7 @@ pair <cpp_int, cpp_int> Pers::gen_publickey(cpp_int &p, cpp_int &q, cpp_int &phi
 	
 	while (!flag)
 	{
-		e = 2 + gen() % (phi_n - 3);
+		e = 2 + gen256() % (phi_n - 3);
 		flag = (gcd(e, phi_n) == 1);
 	}
 
@@ -18,11 +18,11 @@ pair <cpp_int, cpp_int> Pers::gen_publickey(cpp_int &p, cpp_int &q, cpp_int &phi
 
 }
 
-pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> Pers::gen_keyset()
+pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> Pers::gen_keyset(size_t size)
 {
 	cout << "Key pair generating..." << endl;
-	cpp_int p = gen_prime();
-	cpp_int q = gen_prime();
+	cpp_int p = gen_prime(size);
+	cpp_int q = gen_prime(size);
 
 	cpp_int phi_n = prime_euler(p, q);
 
@@ -37,21 +37,21 @@ pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> Pers::gen_keyset
 	return keyset; 
 }
 
-void Pers::setkey()
+void Pers::setkey(size_t size = 256)
 {
-	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> keyset = gen_keyset();
+	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> keyset = gen_keyset(size);
 	this->publickey = keyset.second;
 	this->privatekey = keyset.first;
 }
 
 
 /****************************************************CONSTRUCTOR****************************************************/
-Pers::Pers()
+Pers::Pers(size_t size = 256)
 {
 	//pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> keyset = gen_keyset();
 	//this->publickey = keyset.second;
 	//this->privatekey = keyset.first;
-	this->setkey();
+	this->setkey(size);
 }
 
 Pers::Pers(pair<cpp_int, cpp_int> publ)
@@ -173,8 +173,8 @@ bool Pers::check_signature(/*pair< cpp_int, cpp_int> sign_mes*/cpp_int M, cpp_in
 
 	cout << "Checking signature" << endl;
 
-	//cout << "Message: " << /*sign_mes.first */M<< endl;
-	//cout << "M = S^e mod n = " << horner_pow(/*sign_mes.second*/S, publickey.second, publickey.first) << endl;
+	cout << "Message: " << /*sign_mes.first */M<< endl;
+	cout << "M = S^e mod n = " << horner_pow(/*sign_mes.second*/S, publickey.second, publickey.first) << endl;
 
 
 	if (horner_pow(/*sign_mes.second*/S, publickey.second, publickey.first) == /*sign_mes.first*/M)
@@ -214,16 +214,32 @@ pair< cpp_int, cpp_int> Pers::RSA_sender(Pers &B, cpp_int k)
 	pair<cpp_int, cpp_int> Bpublic = B.getpublickey();
 	if (this->publickey.first > Bpublic.first)
 	{
-		cout << "Unable to send key, another key needed" << endl;
+		cout << "Unable to send key, another sender key needed" << endl;
 		this->setkey();
 		this->printpublickey();
+
+		/*cout << "***************************************************************************" << endl;
+		cout << endl << "Chris" << endl;
+		this->printpublickey();
+		cout << "---------------" << endl;
+		this->printprivatekey();
+		cout << "***************************************************************************" << endl;
+		cout << endl << endl;*/
+
 		return RSA_sender(B, k);
 	}
 
 	cpp_int S = sign_message(k).second;
+
+	cout << "Signature for key " << k << ":	" << S << endl;
+
 	S = encrypt(S, Bpublic);
 
+	cout << "Encrypted signature:	" << S << endl;
+
 	k = encrypt(k, Bpublic);
+
+	cout << "Encrypted key:	" << k << endl;
 
 	return make_pair(k, S);
 
@@ -247,8 +263,10 @@ cpp_int Pers::RSA_reciever(Pers &A, /*pair<cpp_int, cpp_int> mes*/cpp_int &M, cp
 	cpp_int Ss = /*mes.second*/S;
 	/*cout << endl << k << endl;*/
 	k = decrypt(k);
+	cout << "Decrypted key:	" << k << endl;
 	/*cout << k << endl << Ss << endl;*/
 	Ss = decrypt(Ss);
+	cout << "Decrypted signature:	" << Ss << endl;
 	/*cout << Ss << endl << endl;*/
 
 	//// k == S^ A_e mod A_n
