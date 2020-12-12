@@ -155,7 +155,7 @@ bool trial_division(cpp_int num)
 
 bool miller_rabin(cpp_int p)
 {
-	cpp_int k = 1000;//1000 + rand() % 9000;
+	cpp_int k = 100;//1000 + rand() % 9000;
 	vector<cpp_int> used_x;
 	cpp_int x = 0;
 	cpp_int d, s;
@@ -245,21 +245,21 @@ bool miller_rabin(cpp_int p)
 
 bool try_prime(cpp_int num)
 {
-	cout <<hex << num;
+	//cout <<hex << num;
 	if (!trial_division(num))
 	{
-		cout << "	failed trial division" << endl;
+		//cout << "	failed trial division" << endl;
 		return false;
 	}
 	else if (!miller_rabin(num))
 	{
-		cout << "	failed miller rabin" << endl;
+	//	cout << "	failed miller rabin" << endl;
 		return false;
 	}
 	
 	else
 	{
-		cout << "	is pseudo prime" << endl;
+	//	cout << "	is pseudo prime" << endl;
 		return true;
 	}
 
@@ -274,8 +274,18 @@ bool try_prime(cpp_int num)
 	cpp_int p;
 	while (!flag)
 	{
-
-		p = gen256();
+		if (size == 256)
+		{
+			p = gen256();
+		}
+		else if (size == 512)
+		{
+			p = gen512();
+		}
+		else if (size == 1024)
+		{
+			p = gen1024();
+		}
 	//	cout << p << endl;
 		flag = try_prime(p);
 

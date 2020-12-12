@@ -2,10 +2,34 @@
 
 int main()
 {
-	
-	cout << "Enter generator size:	";
-	size_t gen_sz = 256;
-	cin >> dec >> gen_sz;
+	int answ = 0;
+	size_t gen_sz;
+	while (answ < 1 || answ > 3)
+	{
+		cout << "Choose generator size:	" << endl;
+		cout << "1. 256" << endl << "2. 512" << endl << "3. 1024" << endl;
+		cout << "Option:	";
+		
+		cin >> answ;
+		if (answ == 1)
+		{
+			gen_sz = 256;
+		}
+		else if (answ == 2)
+		{
+			gen_sz = 512;
+		}
+		else	if (answ == 3)
+		{
+			gen_sz = 1024;
+		}
+		else
+		{
+			cout << "Incorrect option" << endl;
+		}
+		
+	}
+
 	cout << endl << endl;
 
 
