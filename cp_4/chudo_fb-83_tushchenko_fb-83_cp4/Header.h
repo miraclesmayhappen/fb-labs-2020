@@ -28,20 +28,15 @@ vector<int> dividers = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
 
 
 
-	// Declare our random number generator type, the underlying generator
-   // is the Mersenne twister mt19937 engine, and we'll generate 256 bit
-   // random values, independent_bits_engine will make multiple calls
-   // to the underlying engine until we have the requested number of bits:
-// obtain a seed from the timer
 
 typedef independent_bits_engine<mt19937, 256, cpp_int> generator256_type;
 generator256_type gen256(static_cast<unsigned int>(std::time(0)));
-
-typedef independent_bits_engine<mt19937, 512, cpp_int> generator512_type;
-generator512_type gen512(static_cast<unsigned int>(std::time(0)));
-
-typedef independent_bits_engine<mt19937, 1024, cpp_int> generator1024_type;
-generator1024_type gen1024(static_cast<unsigned int>(std::time(0)));
+////
+//typedef independent_bits_engine<mt19937, 512, cpp_int> generator512_type;
+//generator512_type gen512(static_cast<unsigned int>(std::time(0)));
+//
+//typedef independent_bits_engine<mt19937, 1024, cpp_int> generator1024_type;
+//generator1024_type gen1024(static_cast<unsigned int>(std::time(0)));
 
 
 
@@ -84,8 +79,8 @@ private:
 	tuple<cpp_int, cpp_int, cpp_int> privatekey; //pvk value
 
 
-	pair<cpp_int, cpp_int> gen_publickey(cpp_int& p, cpp_int& q, cpp_int& phi_n); // generate pbk
-	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> gen_keyset(size_t size); // generate pbk and prk
+	pair<cpp_int, cpp_int> gen_publickey(cpp_int& p, cpp_int& q, cpp_int& phi_n, size_t &size); // generate pbk
+	pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> gen_keyset(size_t &size); // generate pbk and prk
 
 
 

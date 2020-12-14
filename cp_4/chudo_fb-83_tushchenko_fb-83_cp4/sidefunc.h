@@ -134,7 +134,38 @@ cpp_int inverse_mod(cpp_int a, cpp_int m)
 
 /////////////////////////////////////////////////////////////
 
+cpp_int gen_num(size_t size)
+{
+//documentation in comments below
 
+//generator
+//mt19937
+//length of cycle
+//2^19937 - 1
+//approx. memory requirements
+//625 * sizeof(uint32_t)
+//approx. speed compared to fastest
+//93 %
+//comment
+//good uniform distribution in up to 623 dimensions
+
+//distribution
+//uniform_int_distribution
+//explanation
+//discrete uniform distribution on a set of integers; the underlying generator may be called several times to gather enough randomness for the output
+//example
+//drawing from an urn
+
+
+	cpp_int b = 1;
+	cpp_int maxval = b << size; 
+	cpp_int minval = b << (size - 1);
+
+	mt19937 gen((static_cast<unsigned int>(std::time(0)))); //seeding with time
+	uniform_int_distribution<cpp_int> unidistr(minval, maxval);
+
+	return unidistr(gen);
+}
 
 ////////////////////////////////////////////////////////////
 
@@ -153,7 +184,7 @@ bool trial_division(cpp_int num)
 	return true;
 }
 
-bool miller_rabin(cpp_int p)
+bool miller_rabin(cpp_int p, size_t &size)
 {
 	cpp_int k = 100;//1000 + rand() % 9000;
 	vector<cpp_int> used_x;
@@ -180,7 +211,7 @@ bool miller_rabin(cpp_int p)
 		while (!flag)
 		{
 			//generate x
-			 x = 2 + gen256() % (p - 4); // 1<x<p
+			 x = 2 + gen_num(size) % (p - 4); // 1<x<p
 			//check if this x value was already chosen
 			vector<cpp_int>::iterator it = find(used_x.begin(), used_x.end(), x);
 			if (it == used_x.end())
@@ -243,7 +274,7 @@ bool miller_rabin(cpp_int p)
 	return true;
 }
 
-bool try_prime(cpp_int num)
+bool try_prime(cpp_int num, size_t &size)
 {
 	//cout <<hex << num;
 	if (!trial_division(num))
@@ -251,7 +282,7 @@ bool try_prime(cpp_int num)
 		//cout << "	failed trial division" << endl;
 		return false;
 	}
-	else if (!miller_rabin(num))
+	else if (!miller_rabin(num, size))
 	{
 	//	cout << "	failed miller rabin" << endl;
 		return false;
@@ -267,27 +298,29 @@ bool try_prime(cpp_int num)
 
 ///////////////////////////////////////////////////////////
 
- cpp_int gen_prime(const size_t size = 256)
+
+ cpp_int gen_prime(size_t size = 256)
 {
 	
 	bool flag = false;
 	cpp_int p;
 	while (!flag)
 	{
-		if (size == 256)
-		{
-			p = gen256();
-		}
-		else if (size == 512)
-		{
-			p = gen512();
-		}
-		else if (size == 1024)
-		{
-			p = gen1024();
-		}
+		//if (size == 256)
+		//{
+		//	p = gen256();
+		//}
+		//else if (size == 512)
+		//{
+		//	p = gen512();
+		//}
+		//else if (size == 1024)
+		//{
+		//	p = gen1024();
+		//}
+		p = gen_num(size);
 	//	cout << p << endl;
-		flag = try_prime(p);
+		flag = try_prime(p, size);
 
 	}
 	return p;

@@ -2,14 +2,14 @@
 
 
 /********************************************KEY GENERATOR*********************************************************/
-pair <cpp_int, cpp_int> Pers::gen_publickey(cpp_int &p, cpp_int &q, cpp_int &phi_n)
+pair <cpp_int, cpp_int> Pers::gen_publickey(cpp_int &p, cpp_int &q, cpp_int &phi_n, size_t &size)
 {
 	cpp_int e;
 	bool flag = false;
 	
 	while (!flag)
 	{
-		e = 2 + gen256() % (phi_n - 3);
+		e = 2 + gen_num(size) % (phi_n - 3);
 		flag = (gcd(e, phi_n) == 1);
 	}
 
@@ -18,7 +18,7 @@ pair <cpp_int, cpp_int> Pers::gen_publickey(cpp_int &p, cpp_int &q, cpp_int &phi
 
 }
 
-pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> Pers::gen_keyset(size_t size)
+pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> Pers::gen_keyset(size_t &size)
 {
 	cout << "Key pair generating..." << endl;
 	cpp_int p = gen_prime(size);
@@ -26,7 +26,7 @@ pair< tuple<cpp_int, cpp_int, cpp_int>, pair<cpp_int, cpp_int>> Pers::gen_keyset
 
 	cpp_int phi_n = prime_euler(p, q);
 
-	pair<cpp_int, cpp_int> publickey = gen_publickey(p, q, phi_n);
+	pair<cpp_int, cpp_int> publickey = gen_publickey(p, q, phi_n, size);
 
 	cpp_int d = inverse_mod(publickey.second, phi_n);
 
